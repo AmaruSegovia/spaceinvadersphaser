@@ -1,0 +1,12 @@
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* Esto centra verticalmente en la ventana del navegador */
+    margin: 0; /* Elimina el margen predeterminado del cuerpo */
+}
+
+#container {
+    text-align: center; /* Centra horizontalmente el contenido dentro del div */
+    /* Agrega estilos adicionales para tu contenedor si es necesario */
+}
