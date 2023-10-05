@@ -27,15 +27,22 @@ let cursors;
 let spaceKey;
 let puntaje = 0;
 let puntajeText;
+let fondo; // Variable para el fondo del escenario
+let velocidadEscenario = 1; // Velocidad de desplazamiento del escenario
 
 function preload() {
     console.log("Cargando imágenes");
     this.load.image("nave", "/public/img/nave.png");
     this.load.image("proyectil", "/public/img/shoot.png");
     this.load.image("enemigo", "/public/img/enemy.png"); // Precarga la imagen del enemigo
+    this.load.image("fondo", "/public/img/fondito.jpg"); // Precarga la imagen de fondo
 }
 
 function create() {
+    // Crea el fondo del escenario y lo hace un tileSprite para que se repita
+    fondo = this.add.tileSprite(0, 0, 1600, 600, "fondo"); // Ajusta el ancho del fondo según tus necesidades
+    fondo.setOrigin(0, 0);
+
     // Crea el personaje
     nave = this.physics.add.image(100, 300, "nave");
     nave.setCollideWorldBounds(true);
@@ -76,6 +83,9 @@ function create() {
 }
 
 function update() {
+    // Mueve el fondo hacia atrás y lo hace repetirse
+    fondo.tilePositionX -= velocidadEscenario;
+
     // Mueve la nave horizontalmente
     if (cursors.right.isDown) {
         nave.setVelocityX(200);
