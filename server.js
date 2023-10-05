@@ -9,7 +9,7 @@ app.get('/', (req, res) => {
 });
 app.use('/src', express.static(__dirname + '/src'));
 app.use('/node_modules', express.static(__dirname + '/node_modules'));
-
+app.use('/public', express.static(__dirname+'/public'));
 // Iniciar el servidor
 app.listen(port, () => {
   console.log(`El servidor está escuchando en el puerto ${port}`);
