@@ -32,6 +32,8 @@ let fondo;
 let velocidadEscenario = 1; 
 let particle1;
 let particle2;
+let disparosRecibidos = 0;
+const maxDisparosPermitidos = 3;
 
 
 
@@ -164,6 +166,7 @@ this.time.addEvent({
     puntaje += 10; 
     puntajeText.setText("Puntaje: " + puntaje); 
   });
+
 }
 
 function update() {
@@ -212,7 +215,7 @@ function generarEnemigo() {
   const x = 800; 
   const y = Phaser.Math.Between(100, 500); 
   const enemigo = enemigos.create(x, y, "enemigo"); 
-  enemigo.setVelocityX(-100); 
+  enemigo.setVelocityX(Phaser.Math.Between(-400, -100));
 }
 
 // Funcion para cargar la fuente
