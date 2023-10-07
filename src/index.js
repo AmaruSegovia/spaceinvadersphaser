@@ -32,17 +32,25 @@ let fondo;
 let velocidadEscenario = 1; 
 let particle1;
 let particle2;
+
+
+
 function preload() {
   console.log("Cargando imágenes");
   this.load.spritesheet("nave", "/public/img/nave.png", {
     frameWidth: 70,
     frameHeight: 62,
   });
+
+  //Cargamos la fuente
+  loadFont("dogicapixelbold", "/public/fonts/dogicapixel.ttf");
+  //Cargamos las imagenes
   this.load.image("proyectil", "/public/img/shoot.png");
   this.load.image("proyectilEnemigo", "/public/img/shootEnemy.png");
   this.load.image("enemigo", "/public/img/enemy.png"); 
   this.load.image("fondo", "/public/img/fondito.jpg"); 
   this.load.image("particles", "/public/img/orange.png");
+
 }
 
 function create() {
@@ -126,8 +134,9 @@ function create() {
   puntajeText = this.add.text(16, 16, "Puntaje: 0", {
     fontSize: "32px",
     fill: "#fff",
+    fontFamily: "dogicapixelbold"
   });
-
+  console.log(puntajeText);
 // Configura un temporizador para crear enemigos
 this.time.addEvent({
   delay: 2000, 
@@ -158,19 +167,19 @@ this.time.addEvent({
 }
 
 function update() {
-//   particles.x = nave.x - 20;
-//   particles.y = nave.y;
 
   fondo.tilePositionX += velocidadEscenario;
 
-
   if (cursors.right.isDown) {
     nave.setVelocityX(200);
+    velocidadEscenario = 3;
   } else if (cursors.left.isDown) {
     nave.setVelocityX(-200);
+    velocidadEscenario = 0.5;
   } else {
     nave.setVelocityX(0);
     nave.anims.play("idle");
+    velocidadEscenario = 1;
   }
 
   
@@ -199,10 +208,19 @@ function dispararProyectilEnemigo(enemigo) {
   proyectilEnemigo.setVelocityX(-400);
 }
 
-
 function generarEnemigo() {
   const x = 800; 
   const y = Phaser.Math.Between(100, 500); 
   const enemigo = enemigos.create(x, y, "enemigo"); 
   enemigo.setVelocityX(-100); 
+}
+
+// Funcion para cargar la fuente
+function loadFont(name, url) {
+  let newFont = new FontFace(name, `url(${url})`);
+  newFont.load().then(function (loaded) {
+      document.fonts.add(loaded);
+  }).catch(function (error) {
+      return error;
+  });
 }

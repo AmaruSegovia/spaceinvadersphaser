@@ -10,3 +10,8 @@ body {
     text-align: center; /* Centra horizontalmente el contenido dentro del div */
     /* Agrega estilos adicionales para tu contenedor si es necesario */
 }
+
+@font-face{
+    font-family: 'dogicapixelbold';
+    src: local('dogicapixelbold'), url('/public/fonts/dogicapixelbold.ttf') format('truetype');
+}
