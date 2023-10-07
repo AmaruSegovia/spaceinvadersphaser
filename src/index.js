@@ -22,6 +22,7 @@ const game = new Phaser.Game(config);
 
 let nave;
 let proyectiles;
+let proyectilesEnemigos;
 let enemigos;
 let cursors;
 let spaceKey;
@@ -41,7 +42,7 @@ function preload() {
   this.load.image("proyectilEnemigo", "/public/img/shootEnemy.png");
   this.load.image("enemigo", "/public/img/enemy.png"); 
   this.load.image("fondo", "/public/img/fondito.jpg"); 
-  this.load.image("particles", "/public/img/red.png");
+  this.load.image("particles", "/public/img/orange.png");
 }
 
 function create() {
@@ -75,29 +76,7 @@ function create() {
   nave.setCollideWorldBounds(true);
   particle2.startFollow(nave);
   particle1.startFollow(nave);
-  
-
-  // Creando las partículas
  
-
-  //particles.startFollow(this.nave);
-
-  /*  emisor = this.add.particles('red').createEmitter(
-        {
-            x: nave.x,
-            y: nave.y,
-            speed: {
-                min: 30,
-                max: 60
-            },
-            scale: {
-                start: 1,
-                end: 2
-            },
-            blendMode: 'ADD'
-        }
-    ) */
-
   // Crea las animaciones del personaje
   this.anims.create({
     key: "up",
@@ -149,13 +128,25 @@ function create() {
     fill: "#fff",
   });
 
-  // Configura un temporizador para crear enemigos
-  this.time.addEvent({
-    delay: 2000, 
-    callback: generarEnemigo,
-    callbackScope: this,
-    loop: true, 
-  });
+// Configura un temporizador para crear enemigos
+this.time.addEvent({
+  delay: 2000, 
+  callback: generarEnemigo,
+  callbackScope: this,
+  loop: true, 
+});
+
+// Configura un temporizador para que los enemigos disparen
+this.time.addEvent({
+  delay: 1500, 
+  callback: () => {
+      enemigos.getChildren().forEach(enemigo => {
+          dispararProyectilEnemigo(enemigo);
+      });
+  },
+  callbackScope: this,
+  loop: true, 
+});
 
   // Agrega una colisión entre proyectiles y enemigos
   this.physics.add.collider(proyectiles, enemigos, (proyectil, enemigo) => {
@@ -203,12 +194,11 @@ function dispararProyectil() {
   proyectil.setVelocityX(400); 
 }
 
-function dispararProyectilEnemigo() {
-  const proyectilEnemigo = proyectiles.create(
-    "proyectilEnemigo"
-  );
+function dispararProyectilEnemigo(enemigo) {
+  const proyectilEnemigo = proyectilesEnemigos.create(enemigo.x, enemigo.y, "proyectilEnemigo");
   proyectilEnemigo.setVelocityX(-400);
 }
+
 
 function generarEnemigo() {
   const x = 800; 
