@@ -34,6 +34,8 @@ let particle1;
 let particle2;
 let disparosRecibidos = 0;
 const maxDisparosPermitidos = 3;
+let laser1;
+let laser2;
 
 
 
@@ -52,13 +54,17 @@ function preload() {
   this.load.image("enemigo", "/public/img/enemy.png"); 
   this.load.image("fondo", "/public/img/fondito.jpg"); 
   this.load.image("particles", "/public/img/orange.png");
-
+  this.load.audio('laser1', ['/public/sound/laser2.mp3']);
+  this.load.audio('laser2', ['/public/sound/laser1.mp3']);
 }
 
 function create() {
   // Crea el fondo del escenario y lo hace un tileSprite para que se repita
   fondo = this.add.tileSprite(0, 0, 800, 600, "fondo");
   fondo.setOrigin(0, 0);
+  laser1 = this.sound.add('laser1');
+  laser2 = this.sound.add('laser2');
+  laser1.setVolume(0.1);
 
   particle1 = this.add.particles(-20, -10, "particles", {
 	speed: 150,
@@ -197,6 +203,7 @@ function update() {
   }
   if (Phaser.Input.Keyboard.JustDown(spaceKey)) {
     dispararProyectil();
+    laser1.play();
   }
 }
 
