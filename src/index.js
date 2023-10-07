@@ -158,7 +158,6 @@ this.time.addEvent({
   callbackScope: this,
   loop: true, 
 });
-
   // Agrega una colisión entre proyectiles y enemigos
   this.physics.add.collider(proyectiles, enemigos, (proyectil, enemigo) => {
     proyectil.destroy(); 
@@ -209,13 +208,14 @@ function dispararProyectil() {
 function dispararProyectilEnemigo(enemigo) {
   const proyectilEnemigo = proyectilesEnemigos.create(enemigo.x, enemigo.y, "proyectilEnemigo");
   proyectilEnemigo.setVelocityX(-400);
+  enemigo.setVelocityY(Phaser.Math.Between(-100, 100));
 }
 
 function generarEnemigo() {
   const x = 800; 
   const y = Phaser.Math.Between(100, 500); 
   const enemigo = enemigos.create(x, y, "enemigo"); 
-  enemigo.setVelocityX(Phaser.Math.Between(-400, -100));
+  enemigo.setVelocityX(Phaser.Math.Between(-200, -100));
 }
 
 // Funcion para cargar la fuente
