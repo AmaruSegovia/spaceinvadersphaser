@@ -280,6 +280,12 @@
 
 //////// Codigo 1 el de arriba es el 2
 
+
+
+
+
+
+
 /* let mostrarFPS;
 let nave;
 let proyectiles;
