@@ -1,3 +1,6 @@
+import ScoreBoard from "./componentes/scoreboard.js";
+import Particle from "./componentes/particle.js";
+
 class Nivel1 extends Phaser.Scene {
     constructor() {
         super({ key: 'Nivel1' });
@@ -10,16 +13,19 @@ class Nivel1 extends Phaser.Scene {
         this.enemigos;
         this.cursors;
         this.spaceKey;
-        this.puntaje = 0;
-        this.puntajeText;
         this.fondo;
         this.velocidadEscenario = 1;
-        this.particle1;
-        this.particle2;
         this.disparosRecibidos = 0;
         this.maxDisparosPermitidos = 3;
         this.laser1;
         this.laser2;
+    }
+
+    //carga cuando se reinicia o inicia la escena
+    init(){
+        this.scoreBoard = new ScoreBoard(this);
+        this.particle1 = new Particle(this);
+        this.particle2 = new Particle(this);
     }
 
     preload() {
@@ -35,8 +41,12 @@ class Nivel1 extends Phaser.Scene {
         this.load.image("enemigo", "public/img/enemy.png");
         this.load.image("fondo", "public/img/fondito.jpg");
         this.load.image("particles", "public/img/orange.png");
+
+        // Cargamos los audios
         this.load.audio('laser1', ['public/sound/laser2.mp3']);
         this.load.audio('laser2', ['public/sound/laser1.mp3']);
+
+        
     }
 
     create() {
@@ -47,35 +57,9 @@ class Nivel1 extends Phaser.Scene {
         this.laser2 = this.sound.add('laser2');
         this.laser1.setVolume(0.1);
 
-        // Partícula del primer motor de la nave
-        this.particle1 = this.add.particles(-20, -10, "particles", {
-            speed: 150,
-            quantity: 20,
-            angle: {
-                min: 170,
-                max: 190,
-            },
-            scale: { start: 0.6, end: 0 },
-            blendMode: "ADD",
-        });
-
-        // Partícula del segundo motor de la nave
-        this.particle2 = this.add.particles(-20, 10, "particles", {
-            speed: 150,
-            quantity: 20,
-            angle: {
-                min: 170,
-                max: 190,
-            },
-            scale: { start: 0.6, end: 0 },
-            blendMode: "ADD",
-        });
-
         // Crea el personaje
         this.nave = this.physics.add.sprite(100, 300, "nave");
         this.nave.setCollideWorldBounds(true);
-        this.particle2.startFollow(this.nave);
-        this.particle1.startFollow(this.nave);
 
         // Crea las animaciones del personaje
         this.anims.create({
@@ -103,6 +87,11 @@ class Nivel1 extends Phaser.Scene {
             frameRate: 10,
         });
 
+        // Crea las particulas de la nave
+        this.particle1.create(10, this.nave);
+        this.particle2.create(-10, this.nave);
+
+
         // Crea un grupo para los proyectiles de la nave
         this.proyectiles = this.physics.add.group();
 
@@ -120,12 +109,8 @@ class Nivel1 extends Phaser.Scene {
         // Configura la tecla de espacio para disparar
         this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
 
-        // Configura el texto del puntaje
-        this.puntajeText = this.add.text(20, 20, "Puntaje: 0", {
-            fontSize: "32px",
-            fill: "#fff",
-            fontFamily: "dogicapixelbold"
-        });
+        //Creando Marcador de puntos
+        this.scoreBoard.create();
 
         // Configura el texto de los FPS
         this.mostrarFPS = this.add.text(640, 30, 'FPS: 0', {
@@ -158,8 +143,7 @@ class Nivel1 extends Phaser.Scene {
         this.physics.add.collider(this.proyectiles, this.enemigos, (proyectil, enemigo) => {
             proyectil.destroy();
             enemigo.destroy();
-            this.puntaje += 10;
-            this.puntajeText.setText("Puntaje: " + this.puntaje);
+            this.scoreBoard.incrementPoints(10);
         });
     }
 
