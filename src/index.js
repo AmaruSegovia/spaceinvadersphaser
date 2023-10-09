@@ -20,6 +20,7 @@ const config = {
 
 const game = new Phaser.Game(config);
 
+let mostrarFPS;
 let nave;
 let proyectiles;
 let proyectilesEnemigos;
@@ -66,6 +67,7 @@ function create() {
   laser2 = this.sound.add('laser2');
   laser1.setVolume(0.1);
 
+      //Particula del primer motor de la nave
   particle1 = this.add.particles(-20, -10, "particles", {
 	speed: 150,
 	quantity: 20,
@@ -76,6 +78,8 @@ function create() {
 	scale: { start: 0.6, end: 0 },
 	blendMode: "ADD",
       });
+
+      //Particula del segundo motor de la nave
       particle2 = this.add.particles(-20, 10, "particles", {
 	speed: 150,
 	quantity: 20,
@@ -139,12 +143,20 @@ function create() {
   spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
 
   // Configura el texto del puntaje
-  puntajeText = this.add.text(16, 16, "Puntaje: 0", {
+  puntajeText = this.add.text(20, 20, "Puntaje: 0", {
     fontSize: "32px",
     fill: "#fff",
     fontFamily: "dogicapixelbold"
   });
   console.log(puntajeText);
+
+  // Configuramos el texto de los FPS
+  mostrarFPS = this.add.text(640, 30, 'FPS: 0', {
+    fontSize: '24px',
+    fill: '#fff',
+    fontFamily: 'dogicapixelbold'
+  });
+
 // Configura un temporizador para crear enemigos
 this.time.addEvent({
   delay: 2000, 
@@ -178,6 +190,8 @@ function update() {
 
   fondo.tilePositionX += velocidadEscenario;
 
+  mostrarFPS.setText(`FPS: ${Math.floor(this.game.loop.actualFps)}`);
+
   if (cursors.right.isDown) {
     nave.setVelocityX(200);
     velocidadEscenario = 3;
@@ -205,6 +219,29 @@ function update() {
     dispararProyectil();
     laser1.play();
   }
+
+    //         ESTA PARTE DEL CODIGO PUEDE MEJORAR PERO POR EL MOMENTO SIRVE, es para que no vaya lagueado :D
+
+    // Verifica si los proyectiles han salido de los límites del mapa y destrúyelos
+    proyectiles.getChildren().forEach(proyectil => {
+      if (proyectil.x > 800 || proyectil.x < 0 || proyectil.y > 600 || proyectil.y < 0) {
+        proyectil.destroy();
+      }
+    });
+  
+    // Verifica si los proyectiles enemigos han salido de los límites del mapa y destrúyelos
+    proyectilesEnemigos.getChildren().forEach(proyectilEnemigo => {
+      if (proyectilEnemigo.x > 800 || proyectilEnemigo.x < 0 || proyectilEnemigo.y > 600 || proyectilEnemigo.y < 0) {
+        proyectilEnemigo.destroy();
+      }
+    });
+  
+    // Verifica si los enemigos han salido de los límites del mapa y destrúyelos
+    enemigos.getChildren().forEach(enemigo => {
+      if (enemigo.x > 800 || enemigo.x < 0 || enemigo.y > 600 || enemigo.y < 0) {
+        enemigo.destroy();
+      }
+    });
 }
 
 function dispararProyectil() {
