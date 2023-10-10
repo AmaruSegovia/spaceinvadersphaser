@@ -1,11 +1,12 @@
 import Nivel1 from "./Nivel1.js";
+import Menu from "./Menu.js";
 
 let config = {
   type: Phaser.AUTO,
   width: 800,
   height: 600,
   parent: "container",
-  scene: [Nivel1],
+  scene: [Menu,Nivel1],
   physics: {
     default: "arcade",
     arcade: {
