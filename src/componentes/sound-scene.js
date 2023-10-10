@@ -19,6 +19,7 @@ export default class SoundScene{
     }
     create (escena) {
         this.soundScene = this.relatedScene.sound.add(escena);
+        this.soundScene.setVolume(0.8);
         this.soundScene.play();
 
         this.laser1 = this.relatedScene.sound.add('laser1');
@@ -27,6 +28,9 @@ export default class SoundScene{
         this.enemyDeath = this.relatedScene.sound.add('enemyDeath');
         this.shootEnemy = this.relatedScene.sound.add('shootEnemy');
         this.laser1.setVolume(0.1);
+        this.mydeath.setVolume(0.1);
+        this.enemyDeath.setVolume(0.1);
+        this.shootEnemy.setVolume(0.1);
     }
     detener_escena(){
         this.soundScene.stop();
