@@ -9,12 +9,14 @@ export default class Tutorial extends Phaser.Scene{
     constructor(){
         super({key: "Tutorial"});
         this.maxpoints= 40;
+        this.lifes = 3;
+        this.puntaje = 0;
     }
 
     //carga cuando se reinicia o inicia la escena
     init(){
-        this.scoreBoard = new ScoreBoard(this);
-        this.vidas = new Life(this);
+        this.scoreBoard = new ScoreBoard(this, this.puntaje);
+        this.vidas = new Life(this,this.lifes);
         this.fps = new FPS(this);
         this.sonido = new SoundScene(this);
         this.nave = new Player(this);
@@ -73,7 +75,7 @@ export default class Tutorial extends Phaser.Scene{
         this.vidas.create();
         
         // Creando Marcador de puntos
-        this.scoreBoard.create();
+        this.scoreBoard.create(0);
 
         // Crando marcador de FPS
         this.fps.create();
@@ -172,7 +174,7 @@ export default class Tutorial extends Phaser.Scene{
         if (this.scoreBoard.getPoints() >= this.maxpoints) {
             this.scene.pause();
             this.sonido.detener_escena();
-            this.scene.start('Nivel1');
+            this.scene.start('Nivel1',{vidas:this.vidas.getLifes(), puntos:this.scoreBoard.getPoints()},);
         }
     }
 

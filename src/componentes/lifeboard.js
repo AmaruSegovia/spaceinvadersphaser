@@ -1,13 +1,13 @@
 // Marcador de Vidas
 
 export default class Life{
-    constructor(scene){
+    constructor(scene,lifes){
         this.relatedScene = scene;
-        this.lives = 3;
+        this.lifes = lifes;
     }
     create () {
         // Configura el texto de las vidas
-        this.vidaText = this.relatedScene.add.text(360, 20, "Vidas: "+ this.lives, {
+        this.vidaText = this.relatedScene.add.text(360, 20, "Vidas: "+ this.lifes, {
             fontSize: "28px",
             fill: "#fff",
             fontFamily: "dogicapixelbold"
@@ -15,8 +15,11 @@ export default class Life{
     }
     
     decrement(){
-        this.lives -= 1;
-        this.vidaText.setText("Vidas: " + this.lives);
+        this.lifes -= 1;
+        this.vidaText.setText("Vidas: " + this.lifes);
+    }
 
+    getLifes(){
+        return(this.lifes);
     }
 }

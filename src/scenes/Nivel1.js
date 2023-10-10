@@ -22,11 +22,11 @@ class Nivel1 extends Phaser.Scene {
     }
 
     //carga cuando se reinicia o inicia la escena
-    init(){
-        this.scoreBoard = new ScoreBoard(this);
+    init(data){
+        this.scoreBoard = new ScoreBoard(this, data.puntos);
         this.particle1 = new Particle(this);
         this.particle2 = new Particle(this);
-        this.vidas = new Life(this);
+        this.vidas = new Life(this, data.vidas);
         this.fps = new FPS(this);
         this.sonido = new SoundScene(this);
     }
