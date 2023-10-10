@@ -19,4 +19,8 @@ export default class ScoreBoard{
         this.puntajeText.setText("Puntaje: " + this.puntaje);
 
     }
+
+    getPoints(){
+        return this.puntaje;
+    }
 }

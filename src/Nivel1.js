@@ -226,8 +226,8 @@ class Nivel1 extends Phaser.Scene {
             this.add.sprite(this.nave.x, this.nave.y, 'explosion').play('explode').setScale(2);
             console.log("Game Over");
             this.sonido.detener_escena();
-            // Después de un cierto tiempo (en milisegundos), cambia a la siguiente escena
-            this.time.delayedCall(10000, this.scene.start('NombreDeSiguienteEscena'), [], this);
+            // Después de un cierto tiempo (en milisegundos), cambia a la siguiente escena            
+            this.time.delayedCall(10000, this.scene.start('GameOver', {puntajeFinal: this.scoreBoard.getPoints()}), [], this);
         }
     }
 
