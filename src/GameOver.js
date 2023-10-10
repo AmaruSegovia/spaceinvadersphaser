@@ -22,8 +22,8 @@ class GameOver extends Phaser.Scene {
         this.startButton.on('pointerdown', () => {
             this.scene.start('Nivel1');
         });
-        this.puntuacionFinalText = this.add.text(360, 20, "Puntaje final: "+ this.puntajeFinal, {
-            fontSize: "28px",
+        this.puntuacionFinalText = this.add.text(160, 350, "Puntaje final: "+ this.puntajeFinal, {
+            fontSize: "36px",
             fill: "#fff",
             fontFamily: "dogicapixelbold"
         });
