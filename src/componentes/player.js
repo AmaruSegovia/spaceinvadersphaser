@@ -4,10 +4,10 @@ import Particle from "./particle.js";
 export default class Player{
     constructor(scene){
         this.relatedScene = scene;
-    }
-    init(){
         this.particle1 = new Particle(this.relatedScene);
         this.particle2 = new Particle(this.relatedScene);
+    }
+    init(){
     }
     preload(){
         this.relatedScene.load.spritesheet("nave", "public/img/nave.png", {
@@ -59,15 +59,22 @@ export default class Player{
             hideOnComplete: true, // desaparece una vez que finaliza la animacion
         });
         
-        // Crea las particulas de la nave
-        // this.particle1.create(10, this.nave);
-        // this.particle2.create(-10, this.nave);
     }
 
     crearNave(){
         // Crea el personaje
         this.nave = this.relatedScene.physics.add.sprite(100, 300, "nave");
         this.nave.setCollideWorldBounds(true);
+        
+        // Crea las particulas de la nave
+        this.particle1.create(10, this.nave);
+        this.particle2.create(-10, this.nave);
+    }
+
+    destruirNave(){
+        this.nave.destroy();
+        this.particle1.destruir();
+        this.particle2.destruir();
     }
 
     velocidadX(x){

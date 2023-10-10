@@ -30,8 +30,10 @@ export default class Tutorial extends Phaser.Scene{
         // Jugaodor
         this.nave.preload();
         //Fondo
-        this.load.image('background', 'public/img/1.jpeg');
+        this.load.image('fondoTutorial', 'public/img/1.jpeg');
         this.load.image("proyectil", "public/img/shoot.png");
+        this.load.image("particles", "public/img/orange.png");
+
 
         // Cargamos la fuente
         this.loadFont('dogicapixelbold', '../public/fonts/dogicapixel.ttf');
@@ -44,7 +46,7 @@ export default class Tutorial extends Phaser.Scene{
         // Agregando Sonido
         this.sonido.create('tutorial');
 
-        this.add.image(400,300, 'background').setScale(0.82);
+        this.add.image(400,300, 'fondoTutorial').setScale(0.82);
         //crea un grupo para asteroides
         this.asteroides = this.physics.add.group();
 
@@ -93,7 +95,7 @@ export default class Tutorial extends Phaser.Scene{
         this.add.sprite(enemigo.x, enemigo.y, 'explosion').play('explode').setScale(2);
         this.add.sprite(nave.x, nave.y, 'explosion').play('explode').setScale(2);
         this.vidas.decrement();
-        nave.destroy();
+        this.nave.destruirNave();
         this.nave.crearNave();
     }
     

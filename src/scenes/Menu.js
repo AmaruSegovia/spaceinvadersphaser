@@ -1,6 +1,11 @@
+import SoundScene from "../componentes/sound-scene.js";
 class Menu extends Phaser.Scene{
     constructor(){
         super({key: "Menu"});
+    }
+    
+    init(){
+        this.sonido = new SoundScene(this);
     }
     preload() {
         // this.load.audio('cancion', '/public/sound/cancion.mp3')
@@ -12,14 +17,13 @@ class Menu extends Phaser.Scene{
         this.load.image('button', 'public/img/BotonPlay.png');
         //cielo
         this.load.image('nube', 'public/img/skye3.png')
+        // this.sonido.preload('Menu', 'public/sound/musicScene/Menu.mp3');
+
     }
     create() {
         // Agregando Sonido
-        // this.sonido = this.sound.add('cancion')
-        // const soundConfig = {
-        //     volume: 1,
-        //     loop: true
-        // }
+        // this.sonido.create('Menu');
+
         this.add.image(400,300, 'background').setScale(0.6,0.6);
         //this.add.image(300,300, 'nube').setScale(4,4)
         //crea un grupo para enemigos
@@ -35,7 +39,7 @@ class Menu extends Phaser.Scene{
         this.startButton = this.add.image(400,300, 'button').setInteractive().setScale(0.5,0.5);
         //cuando el boton sea precionado pasar a Escena1
         this.startButton.on('pointerdown', () =>{
-            this.scene.start('Nivel1');
+            this.scene.start('Tutorial');
         });
     }
     generarEnemigo() {
