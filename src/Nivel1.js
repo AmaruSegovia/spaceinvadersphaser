@@ -2,6 +2,7 @@ import ScoreBoard from "./componentes/scoreboard.js";
 import Particle from "./componentes/particle.js";
 import Life from "./componentes/lifeboard.js";
 import FPS from "./componentes/fpsboard.js";
+import SoundScene from "./componentes/sound-scene.js";
 
 class Nivel1 extends Phaser.Scene {
     constructor() {
@@ -18,8 +19,6 @@ class Nivel1 extends Phaser.Scene {
         this.velocidadEscenario = 1;
         this.disparosRecibidos = 0;
         this.maxDisparosPermitidos = 3;
-        this.laser1;
-        this.laser2;
     }
 
     //carga cuando se reinicia o inicia la escena
@@ -29,6 +28,7 @@ class Nivel1 extends Phaser.Scene {
         this.particle2 = new Particle(this);
         this.vidas = new Life(this);
         this.fps = new FPS(this);
+        this.sonido = new SoundScene(this);
     }
 
     preload() {
@@ -44,9 +44,7 @@ class Nivel1 extends Phaser.Scene {
             frameHeight: 62,
         });
 
-        // Cargamos los audios
-        this.load.audio('laser1', ['public/sound/laser2.mp3']);
-        this.load.audio('laser2', ['public/sound/laser1.mp3']);
+        this.sonido.preload('nivel1', 'public/sound/musicScene/Tutorial.mp3');
 
         // Cargamos la fuente
         this.loadFont('dogicapixelbold', '../public/fonts/dogicapixel.ttf');
@@ -56,16 +54,14 @@ class Nivel1 extends Phaser.Scene {
               frameHeight: 48,
             }
           );
-
     }
 
     create() {
         // Crea el fondo del escenario y lo hace un tileSprite para que se repita
         this.fondo = this.add.tileSprite(0, 0, 800, 600, "fondo");
+        this.sonido.create('nivel1');
+
         this.fondo.setOrigin(0, 0);
-        this.laser1 = this.sound.add('laser1');
-        this.laser2 = this.sound.add('laser2');
-        this.laser1.setVolume(0.1);
 
         // Crea el personaje
         this.nave = this.physics.add.sprite(100, 300, "nave");
@@ -147,6 +143,7 @@ class Nivel1 extends Phaser.Scene {
             callback: () => {
                 this.enemigos.getChildren().forEach(enemigo => {
                     this.dispararProyectilEnemigo(enemigo);
+                    this.sonido.enemigo_disparo();
                 });
             },
             callbackScope: this,
@@ -158,9 +155,8 @@ class Nivel1 extends Phaser.Scene {
             proyectil.destroy();
             this.scoreBoard.incrementPoints(10);
             this.add.sprite(enemigo.x, enemigo.y, 'explosion').play('explode').setScale(2);
+            this.sonido.muerte_enemigo();
             enemigo.destroy();
-
-
         });
 
         // Agrega una colisión entre proyectiles enemigos y nave
@@ -202,7 +198,7 @@ class Nivel1 extends Phaser.Scene {
 
         if (Phaser.Input.Keyboard.JustDown(this.spaceKey)) {
             this.dispararProyectil();
-            this.laser1.play();
+            this.sonido.disparo();
         }
 
         // Verifica si los proyectiles han salido de los límites del mapa y destrúyelos
@@ -225,6 +221,14 @@ class Nivel1 extends Phaser.Scene {
                 enemigo.destroy();
             }
         });
+        if (this.vidas.lives === 0) {
+            this.sonido.muerte_nave();
+            this.add.sprite(this.nave.x, this.nave.y, 'explosion').play('explode').setScale(2);
+            console.log("Game Over");
+            this.sonido.detener_escena();
+            // Después de un cierto tiempo (en milisegundos), cambia a la siguiente escena
+            //this.time.delayedCall(10000, this.scene.start('NombreDeSiguienteEscena'), [], this);
+        }
     }
 
     dispararProyectil() {
