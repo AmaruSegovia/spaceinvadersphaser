@@ -10,8 +10,8 @@ export default class SoundScene{
         this.relatedScene.load.audio(escena, ruta);
 
         // Cargamos los efectos
-        this.relatedScene.load.audio('laser1', 'public/sound/efects/laser2.mp3');
-        this.relatedScene.load.audio('laser2', 'public/sound/efects/laser1.mp3');
+        this.relatedScene.load.audio('laser1', 'public/sound/efects/laser1.mp3');
+        this.relatedScene.load.audio('laser2', 'public/sound/efects/laser2.mp3');
         this.relatedScene.load.audio('mydeath', 'public/sound/efects/death.mp3');
         this.relatedScene.load.audio('enemyDeath', 'public/sound/efects/deathEnemy.mp3');
         this.relatedScene.load.audio('shootEnemy', 'public/sound/efects/shootEnemy.mp3');
@@ -19,7 +19,7 @@ export default class SoundScene{
     }
     create (escena) {
         this.soundScene = this.relatedScene.sound.add(escena);
-        this.soundScene.setVolume(0.8);
+        this.soundScene.setVolume(1);
         this.soundScene.play();
 
         this.laser1 = this.relatedScene.sound.add('laser1');

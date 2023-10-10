@@ -17,6 +17,9 @@ export default class ScoreBoard{
     incrementPoints(points){
         this.puntaje += points;
         this.puntajeText.setText("Puntaje: " + this.puntaje);
+    }
 
+    getPoints(){
+        return(this.puntaje);
     }
 }

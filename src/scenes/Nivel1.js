@@ -1,8 +1,8 @@
-import ScoreBoard from "./componentes/scoreboard.js";
-import Particle from "./componentes/particle.js";
-import Life from "./componentes/lifeboard.js";
-import FPS from "./componentes/fpsboard.js";
-import SoundScene from "./componentes/sound-scene.js";
+import ScoreBoard from "../componentes/scoreboard.js";
+import Particle from "../componentes/particle.js";
+import Life from "../componentes/lifeboard.js";
+import FPS from "../componentes/fpsboard.js";
+import SoundScene from "../componentes/sound-scene.js";
 
 class Nivel1 extends Phaser.Scene {
     constructor() {
@@ -44,7 +44,7 @@ class Nivel1 extends Phaser.Scene {
         });
 
         // Cargamos los sonidos
-        this.sonido.preload('nivel1', 'public/sound/musicScene/Tutorial.mp3');
+        this.sonido.preload('nivel1', 'public/sound/musicScene/Pluto  Space.mp3');
 
         // Cargamos la fuente
         this.loadFont('dogicapixelbold', '../public/fonts/dogicapixel.ttf');
@@ -105,9 +105,6 @@ class Nivel1 extends Phaser.Scene {
         this.particle1.create(10, this.nave);
         this.particle2.create(-10, this.nave);
 
-        // Creando Marcador de vidas
-        this.vidas.create();
-
         // Crea un grupo para los proyectiles de la nave
         this.proyectiles = this.physics.add.group();
 
@@ -122,12 +119,6 @@ class Nivel1 extends Phaser.Scene {
 
         // Configura la tecla de espacio para disparar
         this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
-
-        // Creando Marcador de puntos
-        this.scoreBoard.create();
-
-        // Crando marcador de FPS
-        this.fps.create();
 
         // Configura un temporizador para crear enemigos
         this.time.addEvent({
@@ -161,11 +152,34 @@ class Nivel1 extends Phaser.Scene {
 
         // Agrega una colisión entre proyectiles enemigos y nave
         this.physics.add.collider(this.proyectilesEnemigos, this.nave, this.colisionNaveProyectil, null, this);
+    
+        // Agrega una colisión entre proyectiles enemigos y nave
+        this.physics.add.collider(this.proyectilesEnemigos, this.nave, this.colicioninmediata, null, this);
+    
+        // Creando Marcador de vidas
+        this.vidas.create();
+        
+        // Creando Marcador de puntos
+        this.scoreBoard.create();
+
+        // Crando marcador de FPS
+        this.fps.create();
+
+        // Colisionar nave con grupoEnemigos
+        this.physics.add.collider(this.nave, this.enemigos, this.colisionNaveEnemigo, null, this);
+    
     }
     // Colision Nave - Proyectil enemigo
     colisionNaveProyectil(nave, proyectilEnemigo){
         this.vidas.decrement();
         proyectilEnemigo.destroy();
+    }
+
+    colisionNaveEnemigo(nave, enemigo) {
+        enemigo.destroy();
+        this.sonido.muerte_enemigo();
+        this.add.sprite(enemigo.x, enemigo.y, 'explosion').play('explode').setScale(2);
+        this.vidas.decrement();
     }
 
     update() {
