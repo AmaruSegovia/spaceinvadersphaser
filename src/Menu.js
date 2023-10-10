@@ -1,12 +1,8 @@
-import SoundScene from "./componentes/sound-scene.js";
+
 
 class Menu extends Phaser.Scene {
     constructor() {
         super({ key: "Menu" });
-    }
-
-    init(){
-        this.sonido = new SoundScene(this);
     }
     preload() {
         // Carga de recursos
@@ -14,7 +10,6 @@ class Menu extends Phaser.Scene {
         this.load.image('background', 'public/img/fondito.jpg');
         this.load.image('button', 'public/img/BotonPlay.png');
         this.load.image('nube', 'public/img/skye3.png');
-        this.sonido.preload('menu', 'public/sound/musicScene/Tutorial.mp3');
         this.load.spritesheet("explosion","public/img/explosion.png", {
             frameWidth: 48,
             frameHeight: 48,
@@ -22,7 +17,6 @@ class Menu extends Phaser.Scene {
     }
 
     create() {
-        this.sonido.create('menu');
         this.add.image(400, 300, 'background').setScale(0.6, 0.6);
         this.enemigos = this.physics.add.group();
         // Configura un temporizador para crear enemigos
