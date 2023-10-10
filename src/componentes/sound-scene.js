@@ -15,7 +15,6 @@ export default class SoundScene{
         this.relatedScene.load.audio('mydeath', 'public/sound/efects/death.mp3');
         this.relatedScene.load.audio('enemyDeath', 'public/sound/efects/deathEnemy.mp3');
         this.relatedScene.load.audio('shootEnemy', 'public/sound/efects/shootEnemy.mp3');
-
     }
     create (escena) {
         this.soundScene = this.relatedScene.sound.add(escena);
