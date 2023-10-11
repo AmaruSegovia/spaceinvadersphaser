@@ -20,7 +20,4 @@ export default class Particle{
         this.particle.startFollow(nave);
         
     }
-    destruir(){
-        this.particle.destroy();
-    }
 }

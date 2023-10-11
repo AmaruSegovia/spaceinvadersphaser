@@ -1,20 +1,18 @@
-import Nivel1 from "./scenes/Nivel1.js";
-import Menu from "./scenes/Menu.js";
-import Tutorial from "./scenes/Tutorial.js";
-import GameOver from "./scenes/GameOver.js";
-
+import Nivel1 from "./Nivel1.js";
+import Menu from "./Menu.js";
+import GameOver from "./GameOver.js";
 
 let config = {
   type: Phaser.AUTO,
   width: 800,
   height: 600,
   parent: "container",
-  scene: [Menu,Tutorial,Nivel1, GameOver],
+  scene: [Menu,Nivel1,GameOver],
   physics: {
     default: "arcade",
     arcade: {
       gravity: {y: 0,},
-      debug: true
+      debug: false
     },
   },
 };

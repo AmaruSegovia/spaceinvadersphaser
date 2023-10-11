@@ -3,12 +3,13 @@ export default class restart_botton{
         this.relatedScene = scene;
     }
     preload() {
-        this.relatedScene.load.image('restart-button', '/public/img/restart-button.jpeg')
+        this.relatedScene.load.spritesheet("button", "/public/img/restart.png");
     }
     create() {
-        this.startButton = this.relatedScene.add.image(400, 450, 'restart-button').setScale(0.2).setInteractive();
+        this.startButton = this.relatedScene.add.sprite(400, 230, "button").setInteractive();
+
         this.startButton.on('pointerdown', () => {
-            this.relatedScene.scene.start('Tutorial');
+          this.relatedScene.scene.start("Game");
         });
     }
 }

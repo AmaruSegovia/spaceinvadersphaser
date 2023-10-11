@@ -1,9 +1,9 @@
 // Marcador de Puntuacion
 
 export default class ScoreBoard{
-    constructor(scene, puntaje){
+    constructor(scene){
         this.relatedScene = scene;
-        this.puntaje = puntaje;
+        this.puntaje = 0;
     }
     create () {
         // Configura el texto del puntaje
@@ -17,9 +17,10 @@ export default class ScoreBoard{
     incrementPoints(points){
         this.puntaje += points;
         this.puntajeText.setText("Puntaje: " + this.puntaje);
+
     }
 
     getPoints(){
-        return(this.puntaje);
+        return this.puntaje;
     }
 }
