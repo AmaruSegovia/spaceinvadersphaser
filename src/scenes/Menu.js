@@ -17,13 +17,10 @@ class Menu extends Phaser.Scene{
         this.load.image('button', 'public/img/BotonPlay.png');
         //cielo
         this.load.image('nube', 'public/img/skye3.png')
-        // this.sonido.preload('Menu', 'public/sound/musicScene/Menu.mp3');
-
     }
     create() {
         // Agregando Sonido
-        // this.sonido.create('Menu');
-
+        // 
         this.add.image(400,300, 'background').setScale(0.6,0.6);
         //this.add.image(300,300, 'nube').setScale(4,4)
         //crea un grupo para enemigos

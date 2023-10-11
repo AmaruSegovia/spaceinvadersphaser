@@ -22,4 +22,8 @@ export default class ScoreBoard{
     getPoints(){
         return(this.puntaje);
     }
+
+    getPoints(){
+        return this.puntaje;
+    }
 }
