@@ -1,5 +1,5 @@
 import ScoreBoard from "../componentes/scoreboard.js";
-import Particle from "../componentes/particle.js";
+import Player from "../componentes/player.js";
 import Life from "../componentes/lifeboard.js";
 import FPS from "../componentes/fpsboard.js";
 import SoundScene from "../componentes/sound-scene.js";
@@ -9,7 +9,6 @@ class Nivel1 extends Phaser.Scene {
         super({ key: 'Nivel1' });
 
         // Inicializar variables aquí
-        this.nave;
         this.proyectiles;
         this.proyectilesEnemigos;
         this.enemigos;
@@ -24,11 +23,10 @@ class Nivel1 extends Phaser.Scene {
     //carga cuando se reinicia o inicia la escena
     init(data){
         this.scoreBoard = new ScoreBoard(this, data.puntos);
-        this.particle1 = new Particle(this);
-        this.particle2 = new Particle(this);
         this.vidas = new Life(this, data.vidas);
         this.fps = new FPS(this);
         this.sonido = new SoundScene(this);
+        this.nave = new Player(this);
     }
 
     preload() {
@@ -38,72 +36,26 @@ class Nivel1 extends Phaser.Scene {
         this.load.image("enemigo", "public/img/enemy.png");
         this.load.image("fondo", "public/img/fondito.jpg");
         this.load.image("particles", "public/img/orange.png");
-        this.load.spritesheet("nave", "public/img/nave.png", {
-            frameWidth: 70,
-            frameHeight: 62,
-        });
+        // Cargamos la nave
+        this.nave.preload();
 
         // Cargamos los sonidos
         this.sonido.preload('nivel1', 'public/sound/musicScene/Pluto  Space.mp3');
 
         // Cargamos la fuente
         this.loadFont('dogicapixelbold', '../public/fonts/dogicapixel.ttf');
-
-        this.load.spritesheet("explosion","public/img/explosion.png", {
-              frameWidth: 48,
-              frameHeight: 48,
-            }
-          );
     }
 
     create() {
         // Crea el fondo del escenario y lo hace un tileSprite para que se repita
         this.fondo = this.add.tileSprite(0, 0, 800, 600, "fondo");
-        this.sonido.create('nivel1');
-
         this.fondo.setOrigin(0, 0);
 
+        this.sonido.create('nivel1');
+
         // Crea el personaje
-        this.nave = this.physics.add.sprite(100, 300, "nave");
-        this.nave.setCollideWorldBounds(true);
-
-        // Crea las animaciones del personaje
-        this.anims.create({
-            key: "up",
-            frames: this.anims.generateFrameNumbers("nave", {
-                start: 2,
-                end: 2,
-            }),
-            frameRate: 10,
-        });
-        this.anims.create({
-            key: "idle",
-            frames: this.anims.generateFrameNumbers("nave", {
-                start: 0,
-                end: 0,
-            }),
-            frameRate: 10,
-        });
-        this.anims.create({
-            key: "down",
-            frames: this.anims.generateFrameNumbers("nave", {
-                start: 1,
-                end: 1,
-            }),
-            frameRate: 10,
-        });
-        // Animacion de explosion
-        this.anims.create({
-            key: "explode",
-            frames: this.anims.generateFrameNumbers("explosion"),
-            frameRate: 20,
-            repeat: 0, 
-            hideOnComplete: true // desaparece una vez que finaliza la animacion
-          });
-
-        // Crea las particulas de la nave
-        this.particle1.create(10, this.nave);
-        this.particle2.create(-10, this.nave);
+        this.nave.create();
+        this.estadoNave = true;
 
         // Crea un grupo para los proyectiles de la nave
         this.proyectiles = this.physics.add.group();
@@ -150,12 +102,6 @@ class Nivel1 extends Phaser.Scene {
             enemigo.destroy();
         });
 
-        // Agrega una colisión entre proyectiles enemigos y nave
-        this.physics.add.collider(this.proyectilesEnemigos, this.nave, this.colisionNaveProyectil, null, this);
-    
-        // Agrega una colisión entre proyectiles enemigos y nave
-        this.physics.add.collider(this.proyectilesEnemigos, this.nave, this.colicioninmediata, null, this);
-    
         // Creando Marcador de vidas
         this.vidas.create();
         
@@ -165,49 +111,43 @@ class Nivel1 extends Phaser.Scene {
         // Crando marcador de FPS
         this.fps.create();
 
-        // Colisionar nave con grupoEnemigos
-        this.physics.add.collider(this.nave, this.enemigos, this.colisionNaveEnemigo, null, this);
-    
-    }
-    // Colision Nave - Proyectil enemigo
-    colisionNaveProyectil(nave, proyectilEnemigo){
-        this.vidas.decrement();
-        proyectilEnemigo.destroy();
-    }
-
-    colisionNaveEnemigo(nave, enemigo) {
-        enemigo.destroy();
-        this.sonido.muerte_enemigo();
-        this.add.sprite(enemigo.x, enemigo.y, 'explosion').play('explode').setScale(2);
-        this.vidas.decrement();
     }
 
     update() {
-        this.fondo.tilePositionX += this.velocidadEscenario;
+        if (this.estadoNave) {
+            this.fondo.tilePositionX += this.velocidadEscenario;
+        }
+        
+        // Colisionar nave con grupoEnemigos
+        this.physics.add.collider(this.nave.getObject(), this.enemigos, this.colisionNaveEnemigo, null, this);
+        
+        // Agrega una colisión entre proyectiles enemigos y nave
+        this.physics.add.collider(this.proyectilesEnemigos, this.nave.getObject(), this.colisionNaveProyectil, null, this);
+
 
         this.fps.obteniendo(Math.floor(this.game.loop.actualFps));
 
         if (this.cursors.right.isDown) {
-            this.nave.setVelocityX(200);
+            this.nave.velocidadX(200);
             this.velocidadEscenario = 3;
         } else if (this.cursors.left.isDown) {
-            this.nave.setVelocityX(-200);
+            this.nave.velocidadX(-200);
             this.velocidadEscenario = 0.5;
         } else {
-            this.nave.setVelocityX(0);
-            this.nave.anims.play("idle");
+            this.nave.velocidadX(0);
+            this.nave.animacion("idle");
             this.velocidadEscenario = 1;
         }
 
         if (this.cursors.up.isDown) {
-            this.nave.setVelocityY(-200);
-            this.nave.anims.play("up", true);
+            this.nave.velocidadY(-200);
+            this.nave.animacion("up");
         } else if (this.cursors.down.isDown) {
-            this.nave.setVelocityY(200);
-            this.nave.anims.play("down", true);
+            this.nave.velocidadY(200);
+            this.nave.animacion("down");
         } else {
-            this.nave.setVelocityY(0);
-            this.nave.anims.play("idle");
+            this.nave.velocidadY(0);
+            this.nave.animacion("idle");
         }
 
         if (Phaser.Input.Keyboard.JustDown(this.spaceKey)) {
@@ -235,18 +175,22 @@ class Nivel1 extends Phaser.Scene {
                 enemigo.destroy();
             }
         });
+        // Verifica si la nave no tiene vidas y pasa a la escena de GameOver
         if (this.vidas.lifes <= 0) {
-            this.sonido.muerte_nave();
-            this.add.sprite(this.nave.x, this.nave.y, 'explosion').play('explode').setScale(2);
-            console.log("Game Over");
-            this.sonido.detener_escena();
-            // Después de un cierto tiempo (en milisegundos), cambia a la siguiente escena            
-            this.time.delayedCall(10000, this.scene.start('GameOver', {puntajeFinal: this.scoreBoard.getPoints()}), [], this);
+            if (this.estadoNave) {
+                this.estadoNave = false;
+                this.sonido.muerte_nave();
+                this.sonido.detener_escena();
+            }
+            // Cuando la nave muere, puedes esperar 2 segundos y luego cambiar de escena
+            setTimeout(() => {
+                this.scene.start('GameOver',{puntajeFinal: this.scoreBoard.getPoints()}); // Puedes pasar datos adicionales aquí
+            }, 2000);
         }
     }
 
     dispararProyectil() {
-        const proyectil = this.proyectiles.create(this.nave.x, this.nave.y, "proyectil");
+        const proyectil = this.proyectiles.create(this.nave.getPosicionX(), this.nave.getPosicionY(), "proyectil");
         proyectil.setVelocityX(400);
     }
 
@@ -261,6 +205,36 @@ class Nivel1 extends Phaser.Scene {
         const y = Phaser.Math.Between(100, 500);
         const enemigo = this.enemigos.create(x, y, "enemigo");
         enemigo.setVelocityX(Phaser.Math.Between(-200, -100));
+    }
+
+    // Colision Nave - Proyectil enemigo
+    colisionNaveProyectil(nave, proyectilEnemigo){
+        this.vidas.decrement();
+        proyectilEnemigo.destroy();
+        if (this.vidas.lifes <= 0) {
+            this.naveInvisible();
+        }
+    }
+
+    // Colision entre la nave y algun enemigo
+    colisionNaveEnemigo(nave, enemigo) {
+        enemigo.destroy();
+        this.sonido.muerte_enemigo();
+        this.add.sprite(nave.x, nave.y, 'explosion').play('explode').setScale(2);
+        this.add.sprite(enemigo.x, enemigo.y, 'explosion').play('explode').setScale(2);
+        this.vidas.decrement();
+        this.nave.destruirNave();
+
+        if (this.vidas.lifes > 0) {
+            this.nave.crearNave();
+        }else {
+            this.nave.crearNave();
+            this.naveInvisible();
+        }
+    }
+
+    naveInvisible(){
+        this.nave.deshabilitar();
     }
     
     // Funcion para cargar la fuente

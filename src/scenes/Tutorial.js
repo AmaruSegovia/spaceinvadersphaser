@@ -97,7 +97,6 @@ export default class Tutorial extends Phaser.Scene{
         this.sonido.muerte_enemigo();
         this.add.sprite(nave.x, nave.y, 'explosion').play('explode').setScale(2);
         this.add.sprite(enemigo.x, enemigo.y, 'explosion').play('explode').setScale(2);
-        this.nave.deshabilitar();
         this.vidas.decrement();
         this.nave.destruirNave();
 
