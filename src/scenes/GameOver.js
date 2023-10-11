@@ -1,27 +1,27 @@
+import restart_botton from "../componentes/reset-button.js";
+
 class GameOver extends Phaser.Scene {
     constructor() {
         super("GameOver");
-
         let puntuacionFinal;
     }
 
     init(data){
         console.log(data)
         this.puntajeFinal = data.puntajeFinal;
+        this.button = new restart_botton(this);
     }
 
     preload(){
-        this.load.image('gameover-screen', '/public/img/gameover-screen.jpeg')
-        this.load.image('restart-button', '/public/img/restart-button.jpeg')
+        this.load.image('gameover-screen', '/public/img/gameover-screen.jpeg');
+        this.button.preload();
     }
 
     create(){
 
         this.add.image(400, 300, 'gameover-screen');
-        this.startButton = this.add.image(400, 450, 'restart-button').setScale(0.2).setInteractive();
-        this.startButton.on('pointerdown', () => {
-            this.scene.start('Nivel1');
-        });
+        this.button.create();
+
         this.puntuacionFinalText = this.add.text(160, 300, "Puntaje final: "+ this.puntajeFinal, {
             fontSize: "36px",
             fill: "#fff",

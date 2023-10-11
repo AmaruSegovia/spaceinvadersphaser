@@ -7,8 +7,6 @@ export default class Player{
         this.particle1 = new Particle(this.relatedScene);
         this.particle2 = new Particle(this.relatedScene);
     }
-    init(){
-    }
     preload(){
         this.relatedScene.load.spritesheet("nave", "public/img/nave.png", {
             frameWidth: 70,
@@ -20,9 +18,10 @@ export default class Player{
             frameHeight: 48,
           }
         );
+        this.relatedScene.load.image("particles", "public/img/orange.png");
     }
     create () {
-        
+        // Creando nave
         this.crearNave();
 
         // Crea las animaciones del personaje
@@ -73,6 +72,11 @@ export default class Player{
 
     destruirNave(){
         this.nave.destroy();
+        this.particle1.destruir();
+        this.particle2.destruir();
+    }
+    deshabilitar(){
+        this.nave.disableBody(true,true);
         this.particle1.destruir();
         this.particle2.destruir();
     }

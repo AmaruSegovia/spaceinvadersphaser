@@ -1,4 +1,5 @@
 import SoundScene from "../componentes/sound-scene.js";
+import play_botton from "../componentes/play-button.js";
 class Menu extends Phaser.Scene{
     constructor(){
         super({key: "Menu"});
@@ -6,20 +7,23 @@ class Menu extends Phaser.Scene{
     
     init(){
         this.sonido = new SoundScene(this);
+        this.button = new play_botton(this);
     }
     preload() {
-        // this.load.audio('cancion', '/public/sound/cancion.mp3')
+        // Sonido
+        this.sonido.preload('Menu', '/public/sound/musicScene/Menu.mp3')
         //enemi
         this.load.image("enemigo", "public/img/enemy.png");
         //Fondo
         this.load.image('background', 'public/img/fondito.jpg');
         //Boton play
-        this.load.image('button', 'public/img/BotonPlay.png');
+        this.button.preload();
         //cielo
         this.load.image('nube', 'public/img/skye3.png')
     }
     create() {
         // Agregando Sonido
+        this.sonido.create('Menu')
         // 
         this.add.image(400,300, 'background').setScale(0.6,0.6);
         //this.add.image(300,300, 'nube').setScale(4,4)
@@ -31,12 +35,6 @@ class Menu extends Phaser.Scene{
             callback: this.generarEnemigo,
             callbackScope: this,
             loop: true,
-        });
-        //hacer el boton interactivo
-        this.startButton = this.add.image(400,300, 'button').setInteractive().setScale(0.5,0.5);
-        //cuando el boton sea precionado pasar a Escena1
-        this.startButton.on('pointerdown', () =>{
-            this.scene.start('Tutorial');
         });
     }
     generarEnemigo() {
@@ -52,6 +50,9 @@ class Menu extends Phaser.Scene{
                 enemigo.destroy();
             }
         });
+        
+        // Agregando el boton
+        this.button.create();
     }
 }
 export default Menu;

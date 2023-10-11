@@ -8,7 +8,7 @@ import Player from "../componentes/player.js";
 export default class Tutorial extends Phaser.Scene{
     constructor(){
         super({key: "Tutorial"});
-        this.maxpoints= 40;
+        this.maxpoints= 100; // Cantidad de puntos necesarios para pasar a otro nivel
         this.lifes = 3;
         this.puntaje = 0;
     }
@@ -29,13 +29,13 @@ export default class Tutorial extends Phaser.Scene{
             frameHeight: 62,
             startFrame:3
         });
-        // Jugaodor
+
+        // Jugador
         this.nave.preload();
+        
         //Fondo
         this.load.image('fondoTutorial', 'public/img/1.jpeg');
         this.load.image("proyectil", "public/img/shoot.png");
-        this.load.image("particles", "public/img/orange.png");
-
 
         // Cargamos la fuente
         this.loadFont('dogicapixelbold', '../public/fonts/dogicapixel.ttf');
@@ -45,6 +45,7 @@ export default class Tutorial extends Phaser.Scene{
 
     }
     create() {
+        console.log('Consigue 100 puntos para avanzar');
         // Agregando Sonido
         this.sonido.create('tutorial');
 
@@ -88,19 +89,27 @@ export default class Tutorial extends Phaser.Scene{
             this.sonido.muerte_enemigo();
             asteroide.destroy();
         });
-
+        this.estadoNave = true;
     }
-    
+    // Colision entre la nave y algun asteroide(enemigo)
     colisionNaveEnemigo(nave, enemigo) {
         enemigo.destroy();
         this.sonido.muerte_enemigo();
-        this.add.sprite(enemigo.x, enemigo.y, 'explosion').play('explode').setScale(2);
         this.add.sprite(nave.x, nave.y, 'explosion').play('explode').setScale(2);
+        this.add.sprite(enemigo.x, enemigo.y, 'explosion').play('explode').setScale(2);
+        this.nave.deshabilitar();
         this.vidas.decrement();
         this.nave.destruirNave();
-        this.nave.crearNave();
+
+        if (this.vidas.lifes > 0) {
+            this.nave.crearNave();
+        }else {
+            this.nave.crearNave();
+            this.nave.deshabilitar();
+        }
     }
-    
+
+    // Generando Asteroides
     generarEnemigo() {
         const x = 800;
         const y = Phaser.Math.Between(100, 500);
@@ -108,6 +117,7 @@ export default class Tutorial extends Phaser.Scene{
         asteroide.setVelocityX(Phaser.Math.Between(-200, -100));
     }
 
+    // Nave disparando proyectil
     dispararProyectil() {
         const proyectil = this.proyectiles.create(this.nave.getPosicionX(), this.nave.getPosicionY(), "proyectil");
         proyectil.setVelocityX(400);
@@ -129,7 +139,6 @@ export default class Tutorial extends Phaser.Scene{
         //Verifica que los enemigos salgan y se destruyan
         this.asteroides.getChildren().forEach(asteroide => {
             asteroide.rotation -= 0.01;
-
             if (asteroide.x > 800 || asteroide.x < 0 || asteroide.y > 600 || asteroide.y < 0) {
                 asteroide.destroy();
             }
@@ -163,12 +172,17 @@ export default class Tutorial extends Phaser.Scene{
              this.sonido.disparo();
         }
 
-        if (this.vidas.lives === 0) {
-            this.sonido.muerte_nave();
-            this.add.sprite(this.nave.x, this.nave.y, 'explosion').play('explode').setScale(2);
-            this.sonido.detener_escena();
-            // Después de un cierto tiempo (en milisegundos), cambia a la siguiente escena
-            this.time.delayedCall(10000, this.scene.start('NombreDeSiguienteEscena'), [], this);
+        if (this.vidas.lifes <= 0) {
+            if (this.estadoNave) {
+                this.estadoNave = false;
+                this.sonido.muerte_nave();
+                this.sonido.detener_escena();
+            
+            }
+            // Cuando la nave muere, puedes esperar 2 segundos y luego cambiar de escena
+            setTimeout(() => {
+                this.scene.start('GameOver',{puntajeFinal: this.scoreBoard.getPoints()}); // Puedes pasar datos adicionales aquí
+            }, 2000);
         }
 
         if (this.scoreBoard.getPoints() >= this.maxpoints) {
