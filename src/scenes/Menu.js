@@ -20,6 +20,10 @@ class Menu extends Phaser.Scene{
         this.button.preload();
         //cielo
         this.load.image('nube', 'public/img/skye3.png')
+        this.load.spritesheet("explosion","public/img/explosion.png", {
+            frameWidth: 48,
+            frameHeight: 48,
+        });
     }
     create() {
         // Agregando Sonido
@@ -36,6 +40,25 @@ class Menu extends Phaser.Scene{
             callbackScope: this,
             loop: true,
         });
+
+                // Habilita la interacción con los enemigos
+                this.input.on('pointerdown', (pointer) => {
+                    this.enemigos.getChildren().forEach(enemigo => {
+                        if (enemigo.getBounds().contains(pointer.x, pointer.y)) {
+                            this.add.sprite(enemigo.x, enemigo.y, 'explosion').play('explode').setScale(2);
+                            enemigo.destroy();
+                        }
+                    });
+                });
+        
+                // Animacion de explosion
+                this.anims.create({
+                    key: "explode",
+                    frames: this.anims.generateFrameNumbers("explosion"),
+                    frameRate: 20,
+                    repeat: 0, 
+                    hideOnComplete: true // desaparece una vez que finaliza la animacion
+                });
     }
     generarEnemigo() {
         const x = 800;
