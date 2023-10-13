@@ -1,25 +1,25 @@
 import ScoreBoard from "../componentes/scoreboard.js";
-import Particle from "../componentes/particle.js";
-import Life from "../componentes/lifeboard.js";
 import FPS from "../componentes/fpsboard.js";
 import SoundScene from "../componentes/sound-scene.js";
 import Player from "../componentes/player.js";
+import Text from "../componentes/textboard.js";
 
 export default class Tutorial extends Phaser.Scene{
     constructor(){
         super({key: "Tutorial"});
-        this.maxpoints= 100; // Cantidad de puntos necesarios para pasar a otro nivel
-        this.lifes = 3;
+        this.maxpoints= 50; // Cantidad de puntos necesarios para pasar a otro nivel
+        this.velocidadEscenario = 1;
         this.puntaje = 0;
     }
 
     //carga cuando se reinicia o inicia la escena
     init(){
         this.scoreBoard = new ScoreBoard(this, this.puntaje);
-        this.vidas = new Life(this,this.lifes);
         this.fps = new FPS(this);
         this.sonido = new SoundScene(this);
         this.nave = new Player(this);
+        this.textoDown = new Text(this);
+        this.textoUp = new Text(this);
     }
 
     preload() {
@@ -33,8 +33,9 @@ export default class Tutorial extends Phaser.Scene{
         // Jugador
         this.nave.preload();
         
-        //Fondo
-        this.load.image('fondoTutorial', 'public/img/1.jpeg');
+        // Fondo
+        this.load.image('fondoQuieto', 'public/img/fondo02.png');
+        this.load.image('fondoTutorial', 'public/img/Sprite-0001.png');
         this.load.image("proyectil", "public/img/shoot.png");
 
         // Cargamos la fuente
@@ -42,14 +43,16 @@ export default class Tutorial extends Phaser.Scene{
 
         // Cargamos los sonidos
         this.sonido.preload('tutorial', 'public/sound/musicScene/Tutorial.mp3');
-
     }
     create() {
-        console.log('Consigue 100 puntos para avanzar');
+        console.log(`Consigue ${this.maxpoints} puntos para avanzar`);
         // Agregando Sonido
         this.sonido.create('tutorial');
 
-        this.add.image(400,300, 'fondoTutorial').setScale(0.82);
+        this.add.image(0,0, 'fondoQuieto').setOrigin(0,0);
+        this.fondo = this.add.tileSprite(0, 0, 800, 600, "fondoTutorial");
+        this.fondo.setOrigin(0, 0);
+
         //crea un grupo para asteroides
         this.asteroides = this.physics.add.group();
 
@@ -63,6 +66,11 @@ export default class Tutorial extends Phaser.Scene{
         // Creando nave
         this.nave.create();
 
+        // Colocando texto en la parte baja
+        this.textoDown.create(`Obten ${this.maxpoints} puntos`, 240, 555 );
+        // Colocando texto en la parte arriba
+        this.textoUp.create(`TUTORIAL`, 340, 20);
+
         // Crea un grupo para los proyectiles de la nave
         this.proyectiles = this.physics.add.group();
 
@@ -71,9 +79,6 @@ export default class Tutorial extends Phaser.Scene{
 
         // Configura la tecla de espacio para disparar
         this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
-
-        // Creando Marcador de vidas
-        this.vidas.create();
         
         // Creando Marcador de puntos
         this.scoreBoard.create(0);
@@ -89,7 +94,6 @@ export default class Tutorial extends Phaser.Scene{
             this.sonido.muerte_enemigo();
             asteroide.destroy();
         });
-        this.estadoNave = true;
     }
     // Colision entre la nave y algun asteroide(enemigo)
     colisionNaveEnemigo(nave, enemigo) {
@@ -97,15 +101,8 @@ export default class Tutorial extends Phaser.Scene{
         this.sonido.muerte_enemigo();
         this.add.sprite(nave.x, nave.y, 'explosion').play('explode').setScale(2);
         this.add.sprite(enemigo.x, enemigo.y, 'explosion').play('explode').setScale(2);
-        this.vidas.decrement();
         this.nave.destruirNave();
-
-        if (this.vidas.lifes > 0) {
-            this.nave.crearNave();
-        }else {
-            this.nave.crearNave();
-            this.nave.deshabilitar();
-        }
+        this.nave.crearNave();
     }
 
     // Generando Asteroides
@@ -123,6 +120,7 @@ export default class Tutorial extends Phaser.Scene{
     }
 
     update(){
+        this.fondo.tilePositionX += this.velocidadEscenario;
         // Colisionar nave con grupoEnemigos
         this.physics.add.collider(this.nave.getObject(), this.asteroides, this.colisionNaveEnemigo, null, this);
     
@@ -171,23 +169,10 @@ export default class Tutorial extends Phaser.Scene{
              this.sonido.disparo();
         }
 
-        if (this.vidas.lifes <= 0) {
-            if (this.estadoNave) {
-                this.estadoNave = false;
-                this.sonido.muerte_nave();
-                this.sonido.detener_escena();
-            
-            }
-            // Cuando la nave muere, puedes esperar 2 segundos y luego cambiar de escena
-            setTimeout(() => {
-                this.scene.start('GameOver',{puntajeFinal: this.scoreBoard.getPoints()}); // Puedes pasar datos adicionales aquí
-            }, 2000);
-        }
-
         if (this.scoreBoard.getPoints() >= this.maxpoints) {
             this.scene.pause();
             this.sonido.detener_escena();
-            this.scene.start('Nivel1',{vidas:this.vidas.getLifes(), puntos:this.scoreBoard.getPoints()},);
+            this.scene.start('Nivel1',{puntos:this.scoreBoard.getPoints()},);
         }
     }
 

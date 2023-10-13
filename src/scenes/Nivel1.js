@@ -17,13 +17,14 @@ class Nivel1 extends Phaser.Scene {
         this.fondo;
         this.velocidadEscenario = 1;
         this.disparosRecibidos = 0;
+        this.lifes = 3;
         this.maxDisparosPermitidos = 3;
     }
 
     //carga cuando se reinicia o inicia la escena
     init(data){
         this.scoreBoard = new ScoreBoard(this, data.puntos);
-        this.vidas = new Life(this, data.vidas);
+        this.vidas = new Life(this,this.lifes );
         this.fps = new FPS(this);
         this.sonido = new SoundScene(this);
         this.nave = new Player(this);
@@ -123,7 +124,6 @@ class Nivel1 extends Phaser.Scene {
         
         // Agrega una colisión entre proyectiles enemigos y nave
         this.physics.add.collider(this.proyectilesEnemigos, this.nave.getObject(), this.colisionNaveProyectil, null, this);
-
 
         this.fps.obteniendo(Math.floor(this.game.loop.actualFps));
 
