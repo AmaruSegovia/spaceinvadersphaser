@@ -12,13 +12,15 @@ import MultiplePower from "../componentes/powers/multiple-power.js";
 export default class Tutorial extends Phaser.Scene{
     constructor(){
         super({key: "Tutorial"});
-        this.maxpoints= 150;             // Cantidad de puntos necesarios para pasar a otro nivel
+        this.maxpoints= 150;            // Cantidad de puntos necesarios para pasar a otro nivel
         this.velocidadEscenario = 1;    // Representa la velocidad que avanza el escenario
         this.puntaje = 0;               // Representa el puntaje del jugador
         this.dañoPlayer = 1;            // Representa el daño de la bala del jugador
         this.proyectilScale = 1;        // Representa la escala del proyectil
         this.lifes = 0                  // Representa la vida del jugador
         this.powerGroup = [];           // Almacen para los poderes que se podran usar
+        this.maxDisparosPermitidos = 5; // Representa la cantidad maxima de disparos que puede hacer el jugador
+        this.contDisparos = 0;          // Representa al contador de disparos del jugador
     }
 
     //Carga cuando se reinicia o inicia la escena
@@ -132,6 +134,7 @@ export default class Tutorial extends Phaser.Scene{
     }
     // Colision entre un proyectil del jugador y un asteroide
     colisionProyectilEnemigo(proyectil,asteroide){
+        this.contDisparos--;
         proyectil.destroy();
         asteroide.vida -=this.dañoPlayer;
         if (asteroide.vida <= 0) {
@@ -149,7 +152,8 @@ export default class Tutorial extends Phaser.Scene{
         this.add.sprite(asteroide.x, asteroide.y, 'explosion').play('explode').setScale(2);
         this.nave.destruirNave();
         this.nave.crearNave();
-        this.powerGroup[2].resetDamage();     // reseteamos el daño de disparo
+        this.powerGroup[2].resetDamage();         // resetea el daño de disparo
+        this.powerGroup[3].resetMultiplePower();  // resetea el disparo multiple
     }
     // Generando Asteroides
     generarEnemigo() {
@@ -165,9 +169,11 @@ export default class Tutorial extends Phaser.Scene{
         proyectil.setScale(this.proyectilScale);
         proyectil.setVelocityX(400);
         
-        if (this.powerGroup[3].powerMultipleActive) {
+        if (this.powerGroup[3].powerMultipleActive && this.contDisparos<this.maxDisparosPermitidos) {
             proyectil.destroy();
+            this.contDisparos+=2;
             this.powerGroup[3].MultiplePower();
+            console.log('entro: '+this.contDisparos);
         }
     }
 
@@ -185,6 +191,7 @@ export default class Tutorial extends Phaser.Scene{
         this.proyectiles.getChildren().forEach(proyectil => {
             if (proyectil.x > 800 || proyectil.x < 0 || proyectil.y > 600 || proyectil.y < 0) {
                 proyectil.destroy();
+                this.contDisparos--;
             }
         });
 
@@ -199,9 +206,10 @@ export default class Tutorial extends Phaser.Scene{
         this.moneys.verificarMuerte();
 
         // Control en el disparo del jugador segun la tecla de espacio
-        if (Phaser.Input.Keyboard.JustDown(this.spaceKey)) {
+        if (Phaser.Input.Keyboard.JustDown(this.spaceKey) && this.contDisparos < this.maxDisparosPermitidos) {
              this.dispararProyectil();
              this.sonido.disparo();
+             this.contDisparos++;
         }
 
         // Verifica la puntuacion actual, para cambiar de escena

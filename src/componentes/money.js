@@ -8,7 +8,7 @@ export class Money {
       this.relatedScene.physics.add.collider(this.relatedScene.nave.getObject(), this.moneys, this.ballImpact, null, this);
       let money = this.moneys.create(x, y, sprite)
       money.relatedPower = relatedPower;
-      money.setVelocity(Phaser.Math.Between(-200, -100), Phaser.Math.Between(-100, 100));
+      money.setVelocity(Phaser.Math.Between(-200, -100), Phaser.Math.Between(-50, 50));
     }
 
     verificarMuerte(){
