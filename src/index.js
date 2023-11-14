@@ -6,8 +6,10 @@ import GameOver from "./scenes/GameOver.js";
 
 let config = {
   type: Phaser.AUTO,
-  width: 800,
-  height: 600,
+  scale: {
+    width: 800,
+    height: 600,
+  },
   parent: "container",
   scene: [Menu,Tutorial,Nivel1, GameOver],
   physics: {

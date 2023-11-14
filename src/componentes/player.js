@@ -49,15 +49,6 @@ export default class Player{
             }),
             frameRate: 10,
         });
-        // Animacion de explosion
-        this.relatedScene.anims.create({
-            key: "explode",
-            frames: this.relatedScene.anims.generateFrameNumbers("explosion"),
-            frameRate: 20,
-            repeat: 0, 
-            hideOnComplete: true, // desaparece una vez que finaliza la animacion
-        });
-        
     }
 
     crearNave(){
@@ -90,6 +81,37 @@ export default class Player{
 
     animacion(nombre){
         this.nave.anims.play(nombre);
+    }
+    
+    setTamanio(size) {
+        this.size = size;
+        this.platform.setScale(size);
+    }
+
+    actualizarPosicion(cursors,scene){
+        // Control en el movimiento de la nave en función de las teclas
+        if (cursors.right.isDown) {
+            this.velocidadX(200);
+            scene.setVelocidadEscenario(3);
+        } else if (cursors.left.isDown) {
+            this.velocidadX(-200);
+            scene.setVelocidadEscenario(0.5);
+        } else {
+            this.velocidadX(0);
+            this.animacion("idle");
+            scene.setVelocidadEscenario(1);
+        }
+
+        if (cursors.up.isDown) {
+            this.velocidadY(-200);
+            this.animacion("up");
+        } else if (cursors.down.isDown) {
+            this.velocidadY(200);
+            this.animacion("down");
+        } else {
+            this.velocidadY(0);
+            this.animacion("idle");
+        }
     }
 
     getObject(){

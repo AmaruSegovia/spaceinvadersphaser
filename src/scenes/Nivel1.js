@@ -35,7 +35,7 @@ class Nivel1 extends Phaser.Scene {
         this.load.image("proyectil", "public/img/shoot.png");
         this.load.image("proyectilEnemigo", "public/img/shootEnemy.png");
         this.load.image("enemigo", "public/img/enemy.png");
-        this.load.image("fondo", "public/img/fondito.jpg");
+        this.load.image("fondo", "public/img/FondoNubes.jpg");
         this.load.image("particles", "public/img/orange.png");
         // Cargamos la nave
         this.nave.preload();
@@ -49,7 +49,7 @@ class Nivel1 extends Phaser.Scene {
 
     create() {
         // Crea el fondo del escenario y lo hace un tileSprite para que se repita
-        this.fondo = this.add.tileSprite(0, 0, 800, 600, "fondo");
+        this.fondo = this.add.tileSprite(0, 0, 800, 600, "fondo").setScale(2);
         this.fondo.setOrigin(0, 0);
 
         this.sonido.create('nivel1');
@@ -184,7 +184,7 @@ class Nivel1 extends Phaser.Scene {
             }
             // Cuando la nave muere, puedes esperar 2 segundos y luego cambiar de escena
             setTimeout(() => {
-                this.scene.start('GameOver',{puntajeFinal: this.scoreBoard.getPoints()}); // Puedes pasar datos adicionales aquí
+                this.scene.start('GameOver',{puntajeFinal: this.scoreBoard.getPoints()});
             }, 2000);
         }
     }
