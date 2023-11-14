@@ -15,8 +15,16 @@ export default class Life{
     }
     
     decrement(){
-        this.lifes -= 1;
-        this.vidaText.setText("Vidas: " + this.lifes);
+        this.lifes--;
+        this.actualizarVida();
+    }
+    increment(){
+        this.lifes++;
+        this.actualizarVida();
+    }
+
+    actualizarVida(){
+        this.vidaText.setText("Vidas: " + this.lifes)
     }
 
     getLifes(){

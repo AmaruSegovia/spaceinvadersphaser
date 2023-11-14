@@ -11,8 +11,7 @@ export default class LivePower extends Power{
 
   obtenerPower() {
     console.log('sumando vida');
-    this.relatedScene.lifes++;
-    console.log('vidas: '+this.relatedScene.lifes);
+    this.relatedScene.scoreVidas.increment();
   }
 
 }
