@@ -4,10 +4,10 @@ import SoundScene from "../componentes/sound-scene.js";
 import Player from "../componentes/player.js";
 import Text from "../componentes/textboard.js";
 import Asteroide from "../componentes/asteroid.js";
-import { Money } from "../componentes/money.js";
-import LivePower from "../componentes/powers/live-power.js"
+import { Moneys } from "../componentes/moneys.js";
 import DestroyPower from "../componentes/powers/destroy-power.js";
 import MultiplePower from "../componentes/powers/multiple-power.js";
+import Proyectiles from "../componentes/proyectiles.js";
 
 export default class Tutorial extends Phaser.Scene{
     constructor(){
@@ -19,8 +19,8 @@ export default class Tutorial extends Phaser.Scene{
         this.proyectilScale = 1;        // Representa la escala del proyectil
         this.lifes = 0                  // Representa la vida del jugador
         this.powerGroup = [];           // Almacen para los poderes que se podran usar
-        this.maxDisparosPermitidos = 5; // Representa la cantidad maxima de disparos que puede hacer el jugador
-        this.contDisparos = 0;          // Representa al contador de disparos del jugador
+        this.ultimoDisparo = 0;         // Representa al tiempo desde el ultimo disparo
+        this.retardoDisparo = 200;      // Representa al tiempo minimo para hacer un disparo
     }
 
     //Carga cuando se reinicia o inicia la escena
@@ -33,8 +33,9 @@ export default class Tutorial extends Phaser.Scene{
         this.textoDown = new Text(this);                            // Representa al texto superior
         this.textoUp = new Text(this);                              // Representa al texto debajo
         this.asteroid = new Asteroide(this);                        // Representa el sprite del asteroide
+        this.proyectiles = new Proyectiles(this);                   // Representa a los proyectiles del jugador
         
-        this.moneys = new Money(this);                              // Representa a las Monedas que usamos para los PowerUps
+        this.moneys = new Moneys(this);                              // Representa a las Monedas que usamos para los PowerUps
 
         // this.powerGroup[1] = new LivePower(this, this.moneys);      // Representa el Poder de agregar vidas
         this.powerGroup[2] = new DestroyPower(this, this.moneys);   // Representa el Poder de aumentar el daño
@@ -84,9 +85,6 @@ export default class Tutorial extends Phaser.Scene{
         // Colocando texto en la parte superior
         this.textoUp.create(`TUTORIAL`, 340, 20);
 
-        // Crea un grupo para los proyectiles de la nave
-        this.proyectiles = this.physics.add.group();
-
         //crea un grupo para asteroides
         this.asteroides = this.physics.add.group();
 
@@ -103,7 +101,7 @@ export default class Tutorial extends Phaser.Scene{
         this.fps.create();
 
         // Gestionar superposición entre proyectiles y asteroide
-        this.physics.add.overlap(this.proyectiles, this.asteroides, this.colisionProyectilEnemigo,null, this);
+        this.proyectiles.create();
 
         // Configura un temporizador para crear objetos powers randoms
         this.time.addEvent({ 
@@ -132,18 +130,7 @@ export default class Tutorial extends Phaser.Scene{
         // Creando objeto con poder
         this.powerGroup[randomPower].create(800, Phaser.Math.Between(20, 580));
     }
-    // Colision entre un proyectil del jugador y un asteroide
-    colisionProyectilEnemigo(proyectil,asteroide){
-        this.contDisparos--;
-        proyectil.destroy();
-        asteroide.vida -=this.dañoPlayer;
-        if (asteroide.vida <= 0) {
-            this.scoreBoard.incrementPoints(10);
-            this.add.sprite(asteroide.x, asteroide.y, 'explosion').play('explode').setScale(2);
-            this.sonido.muerte_enemigo();
-            asteroide.destroy();
-        }
-    }
+    
     // Colision entre la nave y algun asteroide
     colisionNaveEnemigo(nave, asteroide) {
         asteroide.destroy();
@@ -161,20 +148,7 @@ export default class Tutorial extends Phaser.Scene{
         const y = Phaser.Math.Between(100, 500);
         const asteroide = this.asteroides.create(x, y, "asteroide");
         asteroide.setVelocityX(Phaser.Math.Between(-200, -100));
-        asteroide.vida =10;
-    }
-    // Nave dispara proyectil
-    dispararProyectil() {
-        const proyectil = this.proyectiles.create(this.nave.getPosicionX(), this.nave.getPosicionY(), "proyectil");
-        proyectil.setScale(this.proyectilScale);
-        proyectil.setVelocityX(400);
-        
-        if (this.powerGroup[3].powerMultipleActive && this.contDisparos<this.maxDisparosPermitidos) {
-            proyectil.destroy();
-            this.contDisparos+=2;
-            this.powerGroup[3].MultiplePower();
-            console.log('entro: '+this.contDisparos);
-        }
+        asteroide.vida = 7;
     }
 
     // Actualizacion continua
@@ -187,15 +161,10 @@ export default class Tutorial extends Phaser.Scene{
         // Actualizando los FPS
         this.fps.obteniendo(Math.floor(this.game.loop.actualFps));
 
-        // Verifica si los proyectiles han salido de los límites del mapa y destrúyelos
-        this.proyectiles.getChildren().forEach(proyectil => {
-            if (proyectil.x > 800 || proyectil.x < 0 || proyectil.y > 600 || proyectil.y < 0) {
-                proyectil.destroy();
-                this.contDisparos--;
-            }
-        });
+        // Verificar limites de los proyectiles
+        this.proyectiles.verificarLimitProyectiles();
 
-        //Verifica que los enemigos salgan y se destruyan
+        // Verificar que los enemigos salgan y se destruyan
         this.asteroides.getChildren().forEach(asteroide => {
             asteroide.rotation -= 0.01;
             if (asteroide.x > 800 || asteroide.x < 0 || asteroide.y > 600 || asteroide.y < 0) {
@@ -206,10 +175,8 @@ export default class Tutorial extends Phaser.Scene{
         this.moneys.verificarMuerte();
 
         // Control en el disparo del jugador segun la tecla de espacio
-        if (Phaser.Input.Keyboard.JustDown(this.spaceKey) && this.contDisparos < this.maxDisparosPermitidos) {
-             this.dispararProyectil();
-             this.sonido.disparo();
-             this.contDisparos++;
+        if (Phaser.Input.Keyboard.JustDown(this.spaceKey)) {
+             this.nave.dispararProyectil(this.proyectiles);
         }
 
         // Verifica la puntuacion actual, para cambiar de escena

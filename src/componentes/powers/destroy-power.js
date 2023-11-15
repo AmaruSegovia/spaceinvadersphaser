@@ -16,7 +16,7 @@ export default class DestroyPower extends Power{
 
     // Aumenta el daño del jugador
   increaseDamage(){
-      this.relatedScene.dañoPlayer += 4;
+      this.relatedScene.dañoPlayer += 2;
       this.relatedScene.proyectilScale = 2;
       console.log('ahora tienes un daño de: '+this.relatedScene.dañoPlayer);
       setTimeout(() => this.restDamage(), 10000);

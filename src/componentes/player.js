@@ -72,6 +72,15 @@ export default class Player{
         this.particle2.destruir();
     }
 
+    dispararProyectil(proyectiles) {
+        const tiempoActual = this.relatedScene.time.now;
+        if (tiempoActual - this.relatedScene.ultimoDisparo > this.relatedScene.retardoDisparo) {
+            proyectiles.crearProyectilSegunPower();
+            proyectiles.verificarSonidoDisparo();
+            this.relatedScene.ultimoDisparo = tiempoActual;
+        }
+      }
+
     velocidadX(x){
         this.nave.setVelocityX(x);
     }

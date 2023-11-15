@@ -1,4 +1,4 @@
-export class Money {
+export class Moneys {
     constructor(scene) {
       this.relatedScene = scene;
       this.moneys = this.relatedScene.physics.add.group();
@@ -22,6 +22,7 @@ export class Money {
     }
   
     ballImpact(nave, money) {
+      this.relatedScene.sonido.money_collected();
       money.destroy();
       money.relatedPower.obtenerPower();
     }

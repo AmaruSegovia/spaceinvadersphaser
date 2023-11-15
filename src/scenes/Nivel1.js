@@ -4,7 +4,7 @@ import Life from "../componentes/lifeboard.js";
 import FPS from "../componentes/fpsboard.js";
 import SoundScene from "../componentes/sound-scene.js";
 import Asteroide from "../componentes/asteroid.js";
-import { Money } from "../componentes/money.js";
+import { Moneys } from "../componentes/moneys.js";
 import LivePower from "../componentes/powers/live-power.js";
 import DestroyPower from "../componentes/powers/destroy-power.js";
 import MultiplePower from "../componentes/powers/multiple-power.js";
@@ -18,7 +18,6 @@ class Nivel1 extends Phaser.Scene {
         this.proyectilScale = 1;        // Representa la escala del proyectil
         this.lifes = 3;                 // Representa la vida del jugador
         this.powerGroup = [];           // Almacen para los poderes que se podran usar
-        this.maxDisparosPermitidos = 5; // Representa la cantidad maxima de disparos que puede hacer el jugador
         this.ultimoDisparo = 0;         // Representa al tiempo desde el ultimo disparo
         this.retardoDisparo = 250;      // Representa al tiempo minimo para hacer un disparo
     }
@@ -35,7 +34,7 @@ class Nivel1 extends Phaser.Scene {
         this.textoUp = new Text(this);                              // Representa al texto debajo
         this.asteroid = new Asteroide(this);                        // Representa el sprite del asteroide
         
-        this.moneys = new Money(this);                              // Representa a las Monedas que usamos para los PowerUps
+        this.moneys = new Moneys(this);                              // Representa a las Monedas que usamos para los PowerUps
 
         this.powerGroup[1] = new LivePower(this, this.moneys);      // Representa el Poder de agregar vidas
         this.powerGroup[2] = new DestroyPower(this, this.moneys);   // Representa el Poder de aumentar el daño
@@ -225,7 +224,6 @@ class Nivel1 extends Phaser.Scene {
 
     dispararProyectil() {
         const tiempoActual = this.time.now;
-        console.log(tiempoActual);
         if (tiempoActual - this.ultimoDisparo > this.retardoDisparo) {
             const proyectil = this.proyectiles.create(this.nave.getPosicionX(), this.nave.getPosicionY(), "proyectil");
             this.sonido.disparo();
