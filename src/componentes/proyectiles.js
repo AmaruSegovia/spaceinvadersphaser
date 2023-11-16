@@ -6,7 +6,7 @@ export default class Proyectiles {
   
       create() {
         // Gestionar superposición entre proyectiles y asteroides
-        this.relatedScene.physics.add.overlap(this.proyectiles, this.relatedScene.asteroides, this.colisionProyectilAsteroide,null, this);
+        this.relatedScene.physics.add.overlap(this.proyectiles, this.relatedScene.asteroid.getAsteroids(), this.colisionProyectilAsteroide,null, this);
       }
 
       // Colision entre un proyectil del jugador y un asteroide

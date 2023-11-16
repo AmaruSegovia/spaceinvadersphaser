@@ -71,7 +71,6 @@ class Nivel1 extends Phaser.Scene {
         this.sonido.preload('nivel1', 'public/sound/musicScene/Pluto  Space.mp3');
 
         // Cargamos la fuente
-        this.loadFont('dogicapixelbold', '../public/fonts/dogicapixel.ttf');
         
     }
 

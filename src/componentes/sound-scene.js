@@ -21,7 +21,7 @@ export default class SoundScene{
         this.relatedScene.load.audio('money', 'public/sound/efects/coin.ogg');
     }
     create (escena) {
-        this.soundScene = this.relatedScene.sound.add(escena);
+        this.soundScene = this.relatedScene.sound.add(escena, { loop: true });
         this.soundScene.setVolume(1);
         this.soundScene.play();
 

@@ -81,18 +81,19 @@ export default class Tutorial extends Phaser.Scene{
         this.nave.create();
 
         // Colocando texto en la parte baja
-        this.textoDown.create(`Consigue ${this.maxpoints} puntos`, 240, 555 );
+        this.textoDown.create(`Get ${this.maxpoints} Points`, 290, 555, '28px' );
         // Colocando texto en la parte superior
-        this.textoUp.create(`TUTORIAL`, 340, 20);
-
-        //crea un grupo para asteroides
-        this.asteroides = this.physics.add.group();
+        this.textoUp.create(`TUTORIAL`, 360, 20, '28px');
+        this.textoUp.create(`Press ENTER to continue`, 270, 50, '20px');
 
         // Configura las teclas de movimiento
         this.cursors = this.input.keyboard.createCursorKeys();
 
         // Configura la tecla de espacio para disparar
         this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+
+        // Configura la tecla de enter para saltar el tutorial
+        this.enterKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER);
         
         // Creando Marcador de puntos
         this.scoreBoard.create(0);
@@ -114,7 +115,9 @@ export default class Tutorial extends Phaser.Scene{
         // Configura un temporizador para crear asteroides
         this.time.addEvent({
             delay: 2000,
-            callback: this.generarEnemigo,
+            callback:  () => {
+                this.asteroid.create();
+            },
             callbackScope: this,
             loop: true,
         });
@@ -126,7 +129,6 @@ export default class Tutorial extends Phaser.Scene{
         let typePower = [2, 3];
         // Elije un poder aleatorio
         let randomPower = Phaser.Utils.Array.GetRandom(typePower);
-
         // Creando objeto con poder
         this.powerGroup[randomPower].create(800, Phaser.Math.Between(20, 580));
     }
@@ -142,21 +144,13 @@ export default class Tutorial extends Phaser.Scene{
         this.powerGroup[2].resetDamage();         // resetea el daño de disparo
         this.powerGroup[3].resetMultiplePower();  // resetea el disparo multiple
     }
-    // Generando Asteroides
-    generarEnemigo() {
-        const x = 800;
-        const y = Phaser.Math.Between(100, 500);
-        const asteroide = this.asteroides.create(x, y, "asteroide");
-        asteroide.setVelocityX(Phaser.Math.Between(-200, -100));
-        asteroide.vida = 7;
-    }
 
     // Actualizacion continua
     update(){
         this.fondo.tilePositionX += this.velocidadEscenario;
 
         // Colisionar nave con grupoEnemigos
-        this.physics.add.collider(this.nave.getObject(), this.asteroides, this.colisionNaveEnemigo, null, this);
+        this.physics.add.collider(this.nave.getObject(), this.asteroid.getAsteroids(), this.colisionNaveEnemigo, null, this);
 
         // Actualizando los FPS
         this.fps.obteniendo(Math.floor(this.game.loop.actualFps));
@@ -164,13 +158,7 @@ export default class Tutorial extends Phaser.Scene{
         // Verificar limites de los proyectiles
         this.proyectiles.verificarLimitProyectiles();
 
-        // Verificar que los enemigos salgan y se destruyan
-        this.asteroides.getChildren().forEach(asteroide => {
-            asteroide.rotation -= 0.01;
-            if (asteroide.x > 800 || asteroide.x < 0 || asteroide.y > 600 || asteroide.y < 0) {
-                asteroide.destroy();
-            }
-        });
+        this.asteroid.verificarLimites();
 
         this.moneys.verificarMuerte();
 
@@ -180,7 +168,7 @@ export default class Tutorial extends Phaser.Scene{
         }
 
         // Verifica la puntuacion actual, para cambiar de escena
-        if (this.scoreBoard.getPoints() >= this.maxpoints) {
+        if (this.scoreBoard.getPoints() >= this.maxpoints || Phaser.Input.Keyboard.JustDown(this.enterKey)) {
             this.scene.pause();
             this.sonido.detener_escena();
             this.scene.start('Nivel1',{puntos:this.scoreBoard.getPoints()},);
