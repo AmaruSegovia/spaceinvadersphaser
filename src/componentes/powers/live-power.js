@@ -2,7 +2,7 @@ import Power from './powers.js';
 
 export default class LivePower extends Power{
   constructor(scene, money) {
-    super( scene, money, 'ball-green');
+    super( scene, money, 'green');
   }
 
   mover(){

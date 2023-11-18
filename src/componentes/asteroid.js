@@ -12,17 +12,13 @@ export default class Asteroide{
             startFrame:3
         });
     }
+
     create() {
-        
         const x = 800;
         const y = Phaser.Math.Between(100, 500);
         const asteroide = this.asteroides.create(x, y, "asteroide");
         asteroide.setVelocityX(Phaser.Math.Between(-200, -100));
         asteroide.vida = 7;
-    }
-
-    // Generando Asteroides
-    generarEnemigo() {
     }
 
     // Verificar que los enemigos salgan y se destruyan

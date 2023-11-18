@@ -7,16 +7,16 @@ import GameOver from "./scenes/GameOver.js";
 let config = {
   type: Phaser.AUTO,
   scale: {
-    width: 900,
+    width: 800,
     height: 600,
   },
   parent: "container",
-  scene: [Menu,Tutorial,Nivel1, GameOver],
+  scene: [Menu,Tutorial, GameOver,Nivel1],
   physics: {
     default: "arcade",
     arcade: {
       gravity: {y: 0,},
-      debug: true
+      debug: false
     },
   },
 };

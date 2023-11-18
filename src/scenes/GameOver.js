@@ -1,24 +1,21 @@
-import restart_botton from "../componentes/reset-button.js";
+import RestartButton from "../componentes/reset-button.js";
 
 class GameOver extends Phaser.Scene {
     constructor() {
         super("GameOver");
-        let puntuacionFinal;
     }
 
     init(data){
-        console.log(data)
-        this.puntajeFinal = data.puntajeFinal;
-        this.button = new restart_botton(this);
+        this.puntajeFinal = data.puntajeFinal;  // Toma el puntaje de la escena anterior
+        this.button = new RestartButton(this);  // Crea un obj de tipo button
     }
 
     preload(){
         this.load.image('gameover-screen', '/public/img/gameover-screen.jpeg');
-        this.button.preload();
+        this.button.preload(); 
     }
 
     create(){
-
         this.add.image(400, 300, 'gameover-screen');
         this.button.create();
 

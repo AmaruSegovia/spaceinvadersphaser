@@ -1,5 +1,4 @@
 // Marcador de Puntuacion
-
 export default class ScoreBoard{
     constructor(scene, puntaje){
         this.relatedScene = scene;
@@ -7,8 +6,8 @@ export default class ScoreBoard{
     }
     create () {
         // Configura el texto del puntaje
-        this.puntajeText = this.relatedScene.add.text(20, 20, "Points: "+ this.puntaje, {
-            fontSize: "28px",
+        this.puntajeText = this.relatedScene.add.text(20, 15, "Points: "+ this.puntaje, {
+            fontSize: "25px",
             fill: "#fff",
             fontFamily: "dogicapixelbold"
         });

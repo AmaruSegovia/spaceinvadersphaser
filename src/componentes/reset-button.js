@@ -1,14 +1,25 @@
-export default class restart_botton{
+export default class RestartButton{
     constructor(scene) {
-        this.relatedScene = scene;
+        this.relatedScene = scene;  // se refiere a la escena a la que pertenece el codigo
     }
     preload() {
-        this.relatedScene.load.image('restart-button', '/public/img/restart-button.jpeg')
+        this.relatedScene.load.spritesheet('restart', '/public/img/restart-button.jpeg', { frameWidth: 256, frameHeight: 91 });
     }
+
     create() {
-        this.startButton = this.relatedScene.add.image(400, 450, 'restart-button').setScale(0.2).setInteractive();
-        this.startButton.on('pointerdown', () => {
-            this.relatedScene.scene.start('Tutorial');
+        this.button = this.relatedScene.add.sprite(400, 450, 'restart').setInteractive();
+        // Cuando el cursor esté encima del botón
+        this.button.on('pointerover', () => {
+            this.button.setFrame(1);  // cambiar al 2do frame del spritesheet
+        });
+        // Cuando ya no esté encima
+        this.button.on('pointerout', () => {
+            this.button.setFrame(0);  // cambiar al 1er frame del spritesheet
+        });
+        // Cuando se detecte un clic
+        this.button.on('pointerdown', () => {
+            this.relatedScene.scene.start('Tutorial');  // cambiar de escena
         });
     }
+    
 }

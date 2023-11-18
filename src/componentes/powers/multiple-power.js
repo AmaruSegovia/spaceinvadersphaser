@@ -2,7 +2,7 @@ import Power from "./powers.js";
 
 export default class MultiplePower extends Power {
   constructor(scene, money) {
-    super(scene, money, "ball-purple");
+    super(scene, money, "blue");
     this.powerMultipleActive = false;
   }
 
@@ -11,10 +11,6 @@ export default class MultiplePower extends Power {
   }
 
   obtenerPower() {
-    this.MultiplePower();
-  }
-  
-  MultiplePower(){
     console.log("Se obtuvo el power up");
     this.powerMultipleActive = true;
   }

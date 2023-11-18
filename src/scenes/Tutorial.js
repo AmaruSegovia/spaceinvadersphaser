@@ -4,10 +4,9 @@ import SoundScene from "../componentes/sound-scene.js";
 import Player from "../componentes/player.js";
 import Text from "../componentes/textboard.js";
 import Asteroide from "../componentes/asteroid.js";
-import { Moneys } from "../componentes/moneys.js";
 import DestroyPower from "../componentes/powers/destroy-power.js";
-import MultiplePower from "../componentes/powers/multiple-power.js";
 import Proyectiles from "../componentes/proyectiles.js";
+import Moneys from "../componentes/moneys.js";
 
 export default class Tutorial extends Phaser.Scene{
     constructor(){
@@ -30,44 +29,17 @@ export default class Tutorial extends Phaser.Scene{
         this.fps = new FPS(this);                                   // Representa el marcador de FPS
         this.sonido = new SoundScene(this);                         // Representa los sonidos de las escenas
         this.nave = new Player(this);                               // Representa la jugador
-        this.textoDown = new Text(this);                            // Representa al texto superior
-        this.textoUp = new Text(this);                              // Representa al texto debajo
+        this.text = new Text(this);                            // Representa al texto superior
+        this.textDown = new Text(this);                            // Representa al texto superior
+        this.textUp = new Text(this);                              // Representa al texto debajo
         this.asteroid = new Asteroide(this);                        // Representa el sprite del asteroide
         this.proyectiles = new Proyectiles(this);                   // Representa a los proyectiles del jugador
         
         this.moneys = new Moneys(this);                              // Representa a las Monedas que usamos para los PowerUps
 
-        // this.powerGroup[1] = new LivePower(this, this.moneys);      // Representa el Poder de agregar vidas
         this.powerGroup[2] = new DestroyPower(this, this.moneys);   // Representa el Poder de aumentar el daño
-        this.powerGroup[3] = new MultiplePower(this, this.moneys);  // Representa el Poder de disparo multiple
     }
 
-    // Cargar recursos necesarios para el juego antes de que comience la ejecución
-    preload() {
-        // Asteroide
-        this.asteroid.preload();
-
-        // Jugador
-        this.nave.preload();
-
-        // Moneda
-        this.load.image('ball-green', 'public/img/ball-green.png');
-        this.load.image('ball-red', 'public/img/ball-red.png');
-        this.load.image('ball-purple', 'public/img/ball-purple.png');
-
-        // Fondo
-        this.load.image('fondoQuieto', 'public/img/fondo02.png');
-        this.load.image('fondoTutorial', 'public/img/Sprite-0001.png');
-
-        // Proyectil Jugador
-        this.load.image("proyectil", "public/img/shoot.png");
-
-        // Cargamos la fuente
-        this.loadFont('dogicapixelbold', '../public/fonts/dogicapixel.ttf');
-
-        // Cargamos los sonidos
-        this.sonido.preload('tutorial', 'public/sound/musicScene/Tutorial.mp3');
-    }
     // Realizaría la configuración adicional y la lógica del juego.
     create() {
         // Agregando Sonido
@@ -78,13 +50,15 @@ export default class Tutorial extends Phaser.Scene{
         this.fondo = this.add.tileSprite(0, 0, 800, 600, "fondoTutorial").setOrigin(0, 0);
 
         // Creando nave
-        this.nave.create();
+        this.nave.crearNave();
 
         // Colocando texto en la parte baja
-        this.textoDown.create(`Get ${this.maxpoints} Points`, 290, 555, '28px' );
+        this.text.create(`Get ${this.maxpoints} Points`, 250, 555, '25px' );
+        this.textDown.create(`Damage: ${this.dañoPlayer}`, 20, 555, '25px' );
+
         // Colocando texto en la parte superior
-        this.textoUp.create(`TUTORIAL`, 360, 20, '28px');
-        this.textoUp.create(`Press ENTER to continue`, 270, 50, '20px');
+        this.text.create(`TUTORIAL`, 310, 15, '25px');
+        this.textUp.create(`Press ENTER to continue`, 210, 50, '20px');
 
         // Configura las teclas de movimiento
         this.cursors = this.input.keyboard.createCursorKeys();
@@ -94,7 +68,7 @@ export default class Tutorial extends Phaser.Scene{
 
         // Configura la tecla de enter para saltar el tutorial
         this.enterKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER);
-        
+
         // Creando Marcador de puntos
         this.scoreBoard.create(0);
 
@@ -102,7 +76,17 @@ export default class Tutorial extends Phaser.Scene{
         this.fps.create();
 
         // Gestionar superposición entre proyectiles y asteroide
-        this.proyectiles.create();
+        this.proyectiles.colisiones();
+
+        // Configura un temporizador para alternar texto, solo afectara al ultimo texto
+        this.time.addEvent({ 
+            delay: 1000, 
+            callback: ()=>{
+                this.textUp.alternarTexto();
+            }, 
+            callbackScope: this, 
+            loop: true 
+        });
 
         // Configura un temporizador para crear objetos powers randoms
         this.time.addEvent({ 
@@ -123,16 +107,12 @@ export default class Tutorial extends Phaser.Scene{
         });
     }
 
-    // Metodo para crear poderes aleatorios
+    // Metodo para crear el poder
     createRandomPower(){
-        // Array de colores posibles
-        let typePower = [2, 3];
-        // Elije un poder aleatorio
-        let randomPower = Phaser.Utils.Array.GetRandom(typePower);
-        // Creando objeto con poder
-        this.powerGroup[randomPower].create(800, Phaser.Math.Between(20, 580));
+        // Creando objeto con poder 2: mayor daño
+        this.powerGroup[2].create(800, Phaser.Math.Between(20, 580));
     }
-    
+
     // Colision entre la nave y algun asteroide
     colisionNaveEnemigo(nave, asteroide) {
         asteroide.destroy();
@@ -142,29 +122,31 @@ export default class Tutorial extends Phaser.Scene{
         this.nave.destruirNave();
         this.nave.crearNave();
         this.powerGroup[2].resetDamage();         // resetea el daño de disparo
-        this.powerGroup[3].resetMultiplePower();  // resetea el disparo multiple
     }
 
     // Actualizacion continua
     update(){
+        // Mueve el fondo
         this.fondo.tilePositionX += this.velocidadEscenario;
 
-        // Colisionar nave con grupoEnemigos
+        // Colisionar nave con grupoAsteroide
         this.physics.add.collider(this.nave.getObject(), this.asteroid.getAsteroids(), this.colisionNaveEnemigo, null, this);
 
         // Actualizando los FPS
         this.fps.obteniendo(Math.floor(this.game.loop.actualFps));
+        // Acutalizando el daño del jugador en pantalla
+        this.textDown.actualizar("Damage: ",this.dañoPlayer);
 
-        // Verificar limites de los proyectiles
+        // Verificar limites de:
         this.proyectiles.verificarLimitProyectiles();
-
         this.asteroid.verificarLimites();
 
+        // Verifica tanto limite como colision de las monedas
         this.moneys.verificarMuerte();
 
         // Control en el disparo del jugador segun la tecla de espacio
         if (Phaser.Input.Keyboard.JustDown(this.spaceKey)) {
-             this.nave.dispararProyectil(this.proyectiles);
+            this.nave.dispararProyectil(this.proyectiles);
         }
 
         // Verifica la puntuacion actual, para cambiar de escena
@@ -181,15 +163,5 @@ export default class Tutorial extends Phaser.Scene{
     // Cambiar Velocidad del escenario
     setVelocidadEscenario(velocidad){
         this.velocidadEscenario = velocidad;
-    }
-
-    // Funcion para cargar la fuente
-    loadFont(name, url) {
-        let newFont = new FontFace(name, `url(${url})`);
-        newFont.load().then(function (loaded) {
-            document.fonts.add(loaded);
-        }).catch(function (error) {
-            return error;
-        });
     }
 }

@@ -1,38 +1,80 @@
 import SoundScene from "../componentes/sound-scene.js";
 import play_botton from "../componentes/play-button.js";
+import Player from "../componentes/player.js";
+import Asteroide from "../componentes/asteroid.js";
+import Proyectiles from "../componentes/proyectiles.js";
+
 class Menu extends Phaser.Scene{
     constructor(){
         super({key: "Menu"});
     }
-    
+    //Carga cuando se reinicia o inicia la escena
     init(){
-        this.sonido = new SoundScene(this);
-        this.button = new play_botton(this);
+        // Se crean instancias a partir de ALGUNA clase
+        this.buttonPlay = new play_botton(this);                    // Representa al boton de play
+        this.sonido = new SoundScene(this);                         // Representa los sonidos de las escenas
+        this.nave = new Player(this);                               // Representa la jugador
+        this.asteroid = new Asteroide(this);                        // Representa el sprite del asteroide
+        this.proyectiles = new Proyectiles(this);                   // Representa a los proyectiles del jugador
+        this.velocidadEscenario = 1;    // Representa la velocidad que avanza el escenario
     }
+    // Cargar recursos necesarios para el juego completo, antes de que comience la ejecución
     preload() {
-        // Sonido
-        this.sonido.preload('Menu', '/public/sound/musicScene/Menu.mp3')
-        //enemi
+        // Cargamos los audios y efectos
+        this.sonido.preload();
+
+        // Fondos
+        this.load.image('fondoQuieto', 'public/img/fondo02.png');
+        this.load.image('fondoTutorial', 'public/img/Sprite-0001.png');
+        this.load.image("fondo", "public/img/fondito.jpg");
+        this.load.image('Menu', 'public/img/fondito.jpg');
+
+        //Botones
+        this.buttonPlay.preload();
+        
+        // Monedas
+        this.load.spritesheet('money-red', 'public/img/MonedaRed.png', { frameWidth: 32, frameHeight: 32 });
+        this.load.spritesheet('money-green', 'public/img/MonedaGreen.png', { frameWidth: 32, frameHeight: 32 });
+        this.load.spritesheet('money-blue', 'public/img/MonedaBlue.png', { frameWidth: 32, frameHeight: 32 });
+
+        // Jugador
+        this.nave.preload();
+        
+        // Proyectil Jugador
+        this.load.image("proyectil", "public/img/shoot.png");
+        
+        // Enemigo
         this.load.image("enemigo", "public/img/enemy.png");
-        //Fondo
-        this.load.image('background', 'public/img/fondito.jpg');
-        //Boton play
-        this.button.preload();
-        //cielo
-        this.load.image('nube', 'public/img/skye3.png')
-        this.load.spritesheet("explosion","public/img/explosion.png", {
-            frameWidth: 48,
-            frameHeight: 48,
-        });
+        // Asteroide
+        this.asteroid.preload();
+
+        // Proyectil Enemigo
+        this.load.image("proyectilEnemigo", "public/img/shootEnemy.png");
+
+        // Cargamos la fuente
+        this.loadFont('dogicapixelbold', '../public/fonts/dogicapixel.ttf');
     }
+
+    // Realizaría la configuración adicional y la lógica del juego.
     create() {
-        // Agregando Sonido
-        this.sonido.create('Menu')
-        // 
-        this.add.image(400,300, 'background').setScale(0.6,0.6);
-        //this.add.image(300,300, 'nube').setScale(4,4)
-        //crea un grupo para enemigos
+        // Agrega el fondo del menu
+        this.fondo = this.add.tileSprite(0, 0, 800, 600, "fondo").setOrigin(0, 0);
+
+        // Agrega Sonido y efectos
+        this.sonido.create('Menu');
+        
+        // Animacion de explosion
+        this.anims.create({
+            key: "explode",
+            frames: this.anims.generateFrameNumbers("explosion"),
+            frameRate: 20,
+            repeat: 0, 
+            hideOnComplete: true // desaparece una vez que finaliza la animacion
+        });
+
+        // Crea un grupo para enemigos
         this.enemigos = this.physics.add.group();
+
         // Configura un temporizador para crear enemigos
         this.time.addEvent({
             delay: 2000,
@@ -41,32 +83,31 @@ class Menu extends Phaser.Scene{
             loop: true,
         });
 
-                // Habilita la interacción con los enemigos
-                this.input.on('pointerdown', (pointer) => {
-                    this.enemigos.getChildren().forEach(enemigo => {
-                        if (enemigo.getBounds().contains(pointer.x, pointer.y)) {
-                            this.add.sprite(enemigo.x, enemigo.y, 'explosion').play('explode').setScale(2);
-                            enemigo.destroy();
-                        }
-                    });
-                });
-        
-                // Animacion de explosion
-                this.anims.create({
-                    key: "explode",
-                    frames: this.anims.generateFrameNumbers("explosion"),
-                    frameRate: 20,
-                    repeat: 0, 
-                    hideOnComplete: true // desaparece una vez que finaliza la animacion
-                });
+        // Habilita la interacción con los enemigos
+        this.input.on('pointerdown', (pointer) => {
+            this.enemigos.getChildren().forEach(enemigo => {
+                if (enemigo.getBounds().contains(pointer.x, pointer.y)) {
+                    this.add.sprite(enemigo.x, enemigo.y, 'explosion').play('explode').setScale(2);
+                    enemigo.destroy();
+                }
+            });
+        });
+
+        // Crea animaciones del personaje
+        this.nave.create();
     }
+    // Metodo que genera enemigos 
     generarEnemigo() {
         const x = 800;
         const y = Phaser.Math.Between(100, 500);
         const enemigo = this.enemigos.create(x, y, "enemigo");
         enemigo.setVelocityX(Phaser.Math.Between(-200, -100));
     }
+
+    // Actualizacion continua
     update(){
+        this.fondo.tilePositionX += this.velocidadEscenario;
+
         //Verifica que los enemigos salgan y se destruyan
         this.enemigos.getChildren().forEach(enemigo => {
             if (enemigo.x > 800 || enemigo.x < 0 || enemigo.y > 600 || enemigo.y < 0) {
@@ -75,7 +116,16 @@ class Menu extends Phaser.Scene{
         });
         
         // Agregando el boton
-        this.button.create();
+        this.buttonPlay.create();
+    }
+    // Funcion para cargar la fuente
+    loadFont(name, url) {
+        let newFont = new FontFace(name, `url(${url})`);
+        newFont.load().then(function (loaded) {
+            document.fonts.add(loaded);
+        }).catch(function (error) {
+            return error;
+        });
     }
 }
 export default Menu;
