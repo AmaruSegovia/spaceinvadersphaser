@@ -1,40 +1,65 @@
 import ScoreBoard from "../componentes/scoreboard.js";
-import Particle from "../componentes/particle.js";
-import Life from "../componentes/lifeboard.js";
 import FPS from "../componentes/fpsboard.js";
 import SoundScene from "../componentes/sound-scene.js";
 import Player from "../componentes/player.js";
+import Text from "../componentes/textboard.js";
+import Asteroide from "../componentes/asteroid.js";
+import { Moneys } from "../componentes/moneys.js";
+import DestroyPower from "../componentes/powers/destroy-power.js";
+import MultiplePower from "../componentes/powers/multiple-power.js";
+import Proyectiles from "../componentes/proyectiles.js";
 
 export default class Tutorial extends Phaser.Scene{
     constructor(){
         super({key: "Tutorial"});
-        this.maxpoints= 100; // Cantidad de puntos necesarios para pasar a otro nivel
-        this.lifes = 3;
-        this.puntaje = 0;
+        this.maxpoints= 150;            // Cantidad de puntos necesarios para pasar a otro nivel
+        this.velocidadEscenario = 1;    // Representa la velocidad que avanza el escenario
+        this.puntaje = 0;               // Representa el puntaje del jugador
+        this.dañoPlayer = 1;            // Representa el daño de la bala del jugador
+        this.proyectilScale = 1;        // Representa la escala del proyectil
+        this.lifes = 0                  // Representa la vida del jugador
+        this.powerGroup = [];           // Almacen para los poderes que se podran usar
+        this.ultimoDisparo = 0;         // Representa al tiempo desde el ultimo disparo
+        this.retardoDisparo = 200;      // Representa al tiempo minimo para hacer un disparo
     }
 
-    //carga cuando se reinicia o inicia la escena
+    //Carga cuando se reinicia o inicia la escena
     init(){
-        this.scoreBoard = new ScoreBoard(this, this.puntaje);
-        this.vidas = new Life(this,this.lifes);
-        this.fps = new FPS(this);
-        this.sonido = new SoundScene(this);
-        this.nave = new Player(this);
+        // Se crean instancias a partir de ALGUNA clase
+        this.scoreBoard = new ScoreBoard(this, this.puntaje);       // Representa el marcador de puntos
+        this.fps = new FPS(this);                                   // Representa el marcador de FPS
+        this.sonido = new SoundScene(this);                         // Representa los sonidos de las escenas
+        this.nave = new Player(this);                               // Representa la jugador
+        this.textoDown = new Text(this);                            // Representa al texto superior
+        this.textoUp = new Text(this);                              // Representa al texto debajo
+        this.asteroid = new Asteroide(this);                        // Representa el sprite del asteroide
+        this.proyectiles = new Proyectiles(this);                   // Representa a los proyectiles del jugador
+        
+        this.moneys = new Moneys(this);                              // Representa a las Monedas que usamos para los PowerUps
+
+        // this.powerGroup[1] = new LivePower(this, this.moneys);      // Representa el Poder de agregar vidas
+        this.powerGroup[2] = new DestroyPower(this, this.moneys);   // Representa el Poder de aumentar el daño
+        this.powerGroup[3] = new MultiplePower(this, this.moneys);  // Representa el Poder de disparo multiple
     }
 
+    // Cargar recursos necesarios para el juego antes de que comience la ejecución
     preload() {
         // Asteroide
-        this.load.spritesheet("asteroide", "public/img/asteroide.png", {
-            frameWidth: 58,
-            frameHeight: 62,
-            startFrame:3
-        });
+        this.asteroid.preload();
 
         // Jugador
         this.nave.preload();
-        
-        //Fondo
-        this.load.image('fondoTutorial', 'public/img/1.jpeg');
+
+        // Moneda
+        this.load.image('ball-green', 'public/img/ball-green.png');
+        this.load.image('ball-red', 'public/img/ball-red.png');
+        this.load.image('ball-purple', 'public/img/ball-purple.png');
+
+        // Fondo
+        this.load.image('fondoQuieto', 'public/img/fondo02.png');
+        this.load.image('fondoTutorial', 'public/img/Sprite-0001.png');
+
+        // Proyectil Jugador
         this.load.image("proyectil", "public/img/shoot.png");
 
         // Cargamos la fuente
@@ -42,29 +67,24 @@ export default class Tutorial extends Phaser.Scene{
 
         // Cargamos los sonidos
         this.sonido.preload('tutorial', 'public/sound/musicScene/Tutorial.mp3');
-
     }
+    // Realizaría la configuración adicional y la lógica del juego.
     create() {
-        console.log('Consigue 100 puntos para avanzar');
         // Agregando Sonido
         this.sonido.create('tutorial');
 
-        this.add.image(400,300, 'fondoTutorial').setScale(0.82);
-        //crea un grupo para asteroides
-        this.asteroides = this.physics.add.group();
+        // Agregando Fondo
+        this.add.image(0,0, 'fondoQuieto').setOrigin(0,0);
+        this.fondo = this.add.tileSprite(0, 0, 800, 600, "fondoTutorial").setOrigin(0, 0);
 
-        // Configura un temporizador para crear asteroides
-        this.time.addEvent({
-            delay: 2000,
-            callback: this.generarEnemigo,
-            callbackScope: this,
-            loop: true,
-        });
         // Creando nave
         this.nave.create();
 
-        // Crea un grupo para los proyectiles de la nave
-        this.proyectiles = this.physics.add.group();
+        // Colocando texto en la parte baja
+        this.textoDown.create(`Get ${this.maxpoints} Points`, 290, 555, '28px' );
+        // Colocando texto en la parte superior
+        this.textoUp.create(`TUTORIAL`, 360, 20, '28px');
+        this.textoUp.create(`Press ENTER to continue`, 270, 50, '20px');
 
         // Configura las teclas de movimiento
         this.cursors = this.input.keyboard.createCursorKeys();
@@ -72,124 +92,95 @@ export default class Tutorial extends Phaser.Scene{
         // Configura la tecla de espacio para disparar
         this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
 
-        // Creando Marcador de vidas
-        this.vidas.create();
+        // Configura la tecla de enter para saltar el tutorial
+        this.enterKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER);
         
         // Creando Marcador de puntos
         this.scoreBoard.create(0);
 
-        // Crando marcador de FPS
+        // Creando marcador de FPS
         this.fps.create();
 
-        // Agrega una colisión entre proyectiles y asteroide
-        this.physics.add.collider(this.proyectiles, this.asteroides, (proyectil, asteroide) => {
-            proyectil.destroy();
-            this.scoreBoard.incrementPoints(10);
-            this.add.sprite(asteroide.x, asteroide.y, 'explosion').play('explode').setScale(2);
-            this.sonido.muerte_enemigo();
-            asteroide.destroy();
+        // Gestionar superposición entre proyectiles y asteroide
+        this.proyectiles.create();
+
+        // Configura un temporizador para crear objetos powers randoms
+        this.time.addEvent({ 
+            delay: 5000, 
+            callback: this.createRandomPower, 
+            callbackScope: this, 
+            loop: true 
         });
-        this.estadoNave = true;
+
+        // Configura un temporizador para crear asteroides
+        this.time.addEvent({
+            delay: 2000,
+            callback:  () => {
+                this.asteroid.create();
+            },
+            callbackScope: this,
+            loop: true,
+        });
     }
-    // Colision entre la nave y algun asteroide(enemigo)
-    colisionNaveEnemigo(nave, enemigo) {
-        enemigo.destroy();
+
+    // Metodo para crear poderes aleatorios
+    createRandomPower(){
+        // Array de colores posibles
+        let typePower = [2, 3];
+        // Elije un poder aleatorio
+        let randomPower = Phaser.Utils.Array.GetRandom(typePower);
+        // Creando objeto con poder
+        this.powerGroup[randomPower].create(800, Phaser.Math.Between(20, 580));
+    }
+    
+    // Colision entre la nave y algun asteroide
+    colisionNaveEnemigo(nave, asteroide) {
+        asteroide.destroy();
         this.sonido.muerte_enemigo();
         this.add.sprite(nave.x, nave.y, 'explosion').play('explode').setScale(2);
-        this.add.sprite(enemigo.x, enemigo.y, 'explosion').play('explode').setScale(2);
-        this.nave.deshabilitar();
-        this.vidas.decrement();
+        this.add.sprite(asteroide.x, asteroide.y, 'explosion').play('explode').setScale(2);
         this.nave.destruirNave();
-
-        if (this.vidas.lifes > 0) {
-            this.nave.crearNave();
-        }else {
-            this.nave.crearNave();
-            this.nave.deshabilitar();
-        }
+        this.nave.crearNave();
+        this.powerGroup[2].resetDamage();         // resetea el daño de disparo
+        this.powerGroup[3].resetMultiplePower();  // resetea el disparo multiple
     }
 
-    // Generando Asteroides
-    generarEnemigo() {
-        const x = 800;
-        const y = Phaser.Math.Between(100, 500);
-        const asteroide = this.asteroides.create(x, y, "asteroide");
-        asteroide.setVelocityX(Phaser.Math.Between(-200, -100));
-    }
-
-    // Nave disparando proyectil
-    dispararProyectil() {
-        const proyectil = this.proyectiles.create(this.nave.getPosicionX(), this.nave.getPosicionY(), "proyectil");
-        proyectil.setVelocityX(400);
-    }
-
+    // Actualizacion continua
     update(){
+        this.fondo.tilePositionX += this.velocidadEscenario;
+
         // Colisionar nave con grupoEnemigos
-        this.physics.add.collider(this.nave.getObject(), this.asteroides, this.colisionNaveEnemigo, null, this);
-    
+        this.physics.add.collider(this.nave.getObject(), this.asteroid.getAsteroids(), this.colisionNaveEnemigo, null, this);
+
+        // Actualizando los FPS
         this.fps.obteniendo(Math.floor(this.game.loop.actualFps));
 
-        // Verifica si los proyectiles han salido de los límites del mapa y destrúyelos
-        this.proyectiles.getChildren().forEach(proyectil => {
-            if (proyectil.x > 800 || proyectil.x < 0 || proyectil.y > 600 || proyectil.y < 0) {
-                proyectil.destroy();
-            }
-        });
+        // Verificar limites de los proyectiles
+        this.proyectiles.verificarLimitProyectiles();
 
-        //Verifica que los enemigos salgan y se destruyan
-        this.asteroides.getChildren().forEach(asteroide => {
-            asteroide.rotation -= 0.01;
-            if (asteroide.x > 800 || asteroide.x < 0 || asteroide.y > 600 || asteroide.y < 0) {
-                asteroide.destroy();
-            }
-        });
+        this.asteroid.verificarLimites();
 
-        if (this.cursors.right.isDown) {
-            this.nave.velocidadX(200);
-            this.velocidadEscenario = 3;
-        } else if (this.cursors.left.isDown) {
-            this.nave.velocidadX(-200);
-            this.velocidadEscenario = 0.5;
-        } else {
-            this.nave.velocidadX(0);
-            this.nave.animacion("idle");
-            this.velocidadEscenario = 1;
-        }
+        this.moneys.verificarMuerte();
 
-        if (this.cursors.up.isDown) {
-            this.nave.velocidadY(-200);
-            this.nave.animacion("up");
-        } else if (this.cursors.down.isDown) {
-            this.nave.velocidadY(200);
-            this.nave.animacion("down");
-        } else {
-            this.nave.velocidadY(0);
-            this.nave.animacion("idle");
-        }
-
+        // Control en el disparo del jugador segun la tecla de espacio
         if (Phaser.Input.Keyboard.JustDown(this.spaceKey)) {
-             this.dispararProyectil();
-             this.sonido.disparo();
+             this.nave.dispararProyectil(this.proyectiles);
         }
 
-        if (this.vidas.lifes <= 0) {
-            if (this.estadoNave) {
-                this.estadoNave = false;
-                this.sonido.muerte_nave();
-                this.sonido.detener_escena();
-            
-            }
-            // Cuando la nave muere, puedes esperar 2 segundos y luego cambiar de escena
-            setTimeout(() => {
-                this.scene.start('GameOver',{puntajeFinal: this.scoreBoard.getPoints()}); // Puedes pasar datos adicionales aquí
-            }, 2000);
-        }
-
-        if (this.scoreBoard.getPoints() >= this.maxpoints) {
+        // Verifica la puntuacion actual, para cambiar de escena
+        if (this.scoreBoard.getPoints() >= this.maxpoints || Phaser.Input.Keyboard.JustDown(this.enterKey)) {
             this.scene.pause();
             this.sonido.detener_escena();
-            this.scene.start('Nivel1',{vidas:this.vidas.getLifes(), puntos:this.scoreBoard.getPoints()},);
+            this.scene.start('Nivel1',{puntos:this.scoreBoard.getPoints()},);
         }
+
+        // Movimiento del jugador
+        this.nave.actualizarPosicion(this.cursors,this);
+    }
+
+    // Cambiar Velocidad del escenario
+    setVelocidadEscenario(velocidad){
+        this.velocidadEscenario = velocidad;
     }
 
     // Funcion para cargar la fuente

@@ -7,7 +7,7 @@ export default class ScoreBoard{
     }
     create () {
         // Configura el texto del puntaje
-        this.puntajeText = this.relatedScene.add.text(20, 20, "Puntaje: "+ this.puntaje, {
+        this.puntajeText = this.relatedScene.add.text(20, 20, "Points: "+ this.puntaje, {
             fontSize: "28px",
             fill: "#fff",
             fontFamily: "dogicapixelbold"
@@ -16,7 +16,7 @@ export default class ScoreBoard{
     
     incrementPoints(points){
         this.puntaje += points;
-        this.puntajeText.setText("Puntaje: " + this.puntaje);
+        this.puntajeText.setText("Points: " + this.puntaje);
     }
 
     getPoints(){
